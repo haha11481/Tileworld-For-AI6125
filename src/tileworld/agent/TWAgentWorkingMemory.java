@@ -106,7 +106,7 @@ public class TWAgentWorkingMemory {
 	public void updateMemory(Bag sensedObjects, IntBag objectXCoords, IntBag objectYCoords, Bag sensedAgents, IntBag agentXCoords, IntBag agentYCoords) {
 		//reset the closest objects for new iteration of the loop (this is short
 		//term observation memory if you like) It only lasts one timestep
-		closestInSensorRange = new HashMap<Class<?>, TWEntity>(4);
+		//closestInSensorRange = new HashMap<Class<?>, TWEntity>(4);
 
 		//must all be same size.
 		assert (sensedObjects.size() == objectXCoords.size() && sensedObjects.size() == objectYCoords.size());
