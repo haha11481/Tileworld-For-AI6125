@@ -3,6 +3,7 @@ package tileworld.agent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.swing.text.html.HTMLDocument;
 import sim.engine.Schedule;
 import sim.field.grid.ObjectGrid2D;
@@ -56,7 +57,7 @@ public class TWAgentWorkingMemory {
 	 * Here we trade off memory (in that we maintain a complete image of the map)
 	 * for speed of update. Updating the memory is a lot more straightforward.
 	 */
-	private TWAgentPercept[][] objects;
+	protected TWAgentPercept[][] objects;
 	/**
 	 * Number of items recorded in memory, currently doesn't decrease as memory
 	 * is not degraded - nothing is ever removed!
@@ -67,7 +68,7 @@ public class TWAgentWorkingMemory {
 	 * Stores (for each TWObject type) the closest object within sensor range,
 	 * null if no objects are in sensor range
 	 */
-	private HashMap<Class<?>, TWEntity> closestInSensorRange;
+	protected HashMap<Class<?>, TWEntity> closestInSensorRange;
 	static private List<Int2D> spiral = new NeighbourSpiral(Parameters.defaultSensorRange * 4).spiral();
 	//    private List<TWAgent> neighbouringAgents = new ArrayList<TWAgent>();
 
@@ -174,18 +175,19 @@ public class TWAgentWorkingMemory {
 	 * remove probabilistically (exponential decay of memory)
 	 */
 	public void decayMemory() {
-		// put some decay on other memory pieces (this will require complete
-		// iteration over memory though, so expensive.
-		//This is a simple example of how to do this.
-		//        for (int x = 0; x < this.objects.length; x++) {
-		//       for (int y = 0; y < this.objects[x].length; y++) {
-		//           TWAgentPercept currentMemory =  objects[x][y];
-		//           if(currentMemory!=null && currentMemory.getT() < schedule.getTime()-MAX_TIME){
-		//               memoryGrid.set(x, y, null);
-		//               memorySize--;
-		//           }
-		//       }
-		//   }
+		for (int x = 0; x < this.objects.length; x++) {
+			for (int y = 0; y < this.objects[x].length; y++) {
+				TWAgentPercept currentMemory = objects[x][y];
+				if (currentMemory != null && currentMemory.getO() instanceof TWObject) {
+					if (((TWObject) currentMemory.getO()).getTimeLeft(this.getSimulationTime())	<= 0) {
+						memoryGrid.set(x, y, null);
+						memorySize--;
+					}
+				}
+			}
+		}
+		closestInSensorRange.entrySet().removeIf(entry ->
+				entry.getValue() instanceof TWObject && ((TWObject) entry.getValue()).getTimeLeft(this.getSimulationTime())	<= 0);
 	}
 
 
@@ -202,7 +204,7 @@ public class TWAgentWorkingMemory {
 	/**
 	 * @return
 	 */
-	private double getSimulationTime() {
+	protected double getSimulationTime() {
 		return schedule.getTime();
 	}
 
@@ -301,7 +303,7 @@ public class TWAgentWorkingMemory {
 		return closestInSensorRange.get(type);
 	}
 
-	private void updateClosest(TWEntity o) {
+	protected void updateClosest(TWEntity o) {
 		assert (o != null);
 		if (closestInSensorRange.get(o.getClass()) == null || me.closerTo(o, closestInSensorRange.get(o.getClass()))) {
 			closestInSensorRange.put(o.getClass(), o);
