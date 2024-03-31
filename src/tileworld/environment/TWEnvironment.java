@@ -62,12 +62,22 @@ public class TWEnvironment extends SimState implements Steppable {
     
     private int reward;
 
-//    private TWFuelStation getFuelingStation() {
-//        return fuelingStation;
-//    }
+    // For Testing Only!
+    public TWFuelStation getFuelingStation() {
+      return fuelingStation;
+    }
     
     public boolean inFuelStation(TWAgent agent) {
     	return ((agent.x==fuelingStation.x)&&(agent.y==fuelingStation.y));
+    }
+
+    // 如果agent视野范围内有fuelStation，则会返回该fuelStation，否则返回null
+    public TWFuelStation findFuelStation(TWAgent agent, int sensorRange) {
+        if (Math.abs(agent.x-fuelingStation.x) <= sensorRange && (Math.abs(agent.y-fuelingStation.y) <= sensorRange)) {
+            return fuelingStation;
+        } else {
+            return null;
+        }
     }
 
     public TWEnvironment() {
@@ -108,18 +118,15 @@ public class TWEnvironment extends SimState implements Steppable {
         schedule.scheduleRepeating(this, 1, 1.0);
         
         //Now we create some agents
-        Int2D pos = this.generateRandomLocation();
-        createAgent(new SimpleTWAgent("agent1", pos.getX(), pos.getY(), this, Parameters.defaultFuelLevel));
-        pos = this.generateRandomLocation();
-        createAgent(new SimpleTWAgent("agent2", pos.getX(), pos.getY(), this, Parameters.defaultFuelLevel));
-        
-//        
+        Int2D pos;
+        for (int i = 1; i <= 5; i++) {
+            pos = this.generateRandomLocation();
+            createAgent(new MyAgent("agent" + i, pos.getX(), pos.getY(), this, Parameters.defaultFuelLevel));
+        }
+
         //create the fueling station
         pos = this.generateRandomLocation();
         fuelingStation = new TWFuelStation(pos.getX(), pos.getY(),this);
-
-
-
     }
 
     private void createTWObjects(double time) {
