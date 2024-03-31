@@ -26,7 +26,7 @@ import sim.portrayal.SimplePortrayal2D;
  *
  * Simple Portrayal based on the rectangle 2d portrayal.
  * This just adds an extra rectangle to display the sensor range of the
- * TWAgent
+ *
  *
  */
 public class TWAgentPortrayal extends SimplePortrayal2D
