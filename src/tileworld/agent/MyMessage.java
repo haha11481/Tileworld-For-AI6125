@@ -1,0 +1,50 @@
+package tileworld.agent;
+
+import sim.util.Bag;
+import sim.util.Int2D;
+import sim.util.IntBag;
+import tileworld.environment.TWFuelStation;
+
+public class MyMessage extends Message {
+  private final Bag entities;
+  private final IntBag x;
+  private final IntBag y;
+  private final TWFuelStation fuelStation;
+  private final Int2D currentGoal;
+  private final Int2D agentPos;
+
+  // TODO 需要加入，如本agent的状态或者位置信息， 预期将执行的action等
+  public MyMessage(Bag entities, IntBag x, IntBag y, TWFuelStation fuelStation, Int2D currentGoal, Int2D agentPos) {
+    super("", "", "");
+    this.entities = entities;
+    this.x = x;
+    this.y = y;
+    this.fuelStation = fuelStation;
+    this.currentGoal = currentGoal;
+    this.agentPos = agentPos;
+  }
+
+  public Bag getEntities() {
+    return this.entities;
+  }
+
+  public IntBag getX() {
+    return x;
+  }
+
+  public IntBag getY() {
+    return y;
+  }
+
+  public TWFuelStation getFuelStation() {
+    return this.fuelStation;
+  }
+
+  public Int2D getCurrentGoal() {
+    return this.currentGoal;
+  }
+
+  public Int2D getAgentPos() {
+    return this.agentPos;
+  }
+}

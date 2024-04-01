@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="31ea883e-be46-4869-b197-1ead2c507c34" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/MASON_14.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/tileworld/planners/MyPlanner.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tileworld.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Tileworld.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/Parameters.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/Parameters.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/Parameters2.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/Parameters2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/TWGUI.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/TWGUI.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/TileworldMain.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/TileworldMain.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/agent/AgentInspector$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/agent/AgentInspector$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/agent/AgentInspector.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/agent/AgentInspector.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/agent/Message.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/agent/Message.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/agent/MyAgent.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/agent/MyAgent.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/agent/MyMemory.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/agent/MyMemory.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/agent/MyMessage.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/agent/MyMessage.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/agent/MySensor.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/agent/SimpleTWAgent.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/agent/SimpleTWAgent.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/agent/TWAction.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/agent/TWAction.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/agent/TWAgent$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/agent/TWAgent$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/agent/TWAgent.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/agent/TWAgent.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/agent/TWAgentPercept.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/agent/TWAgentPercept.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/agent/TWAgentPortrayal.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/agent/TWAgentPortrayal.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/agent/TWAgentSensor.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/agent/TWAgentSensor.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/agent/TWAgentWorkingMemory.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/agent/TWAgentWorkingMemory.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/agent/TWThought.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/agent/TWThought.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/environment/NeighbourSpiral.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/environment/NeighbourSpiral.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/environment/TWDirection$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/environment/TWDirection$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/environment/TWDirection$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/environment/TWDirection$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/environment/TWDirection$3.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/environment/TWDirection$3.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/environment/TWDirection$4.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/environment/TWDirection$4.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/environment/TWDirection$5.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/environment/TWDirection$5.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/environment/TWDirection.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/environment/TWDirection.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/environment/TWEntity.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/environment/TWEntity.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/environment/TWEnvironment$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/environment/TWEnvironment$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/environment/TWEnvironment.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/environment/TWEnvironment.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/environment/TWFuelStation.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/environment/TWFuelStation.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/environment/TWHole.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/environment/TWHole.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/environment/TWObjectCreator.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/environment/TWObjectCreator.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/environment/TWObstacle.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/environment/TWObstacle.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/environment/TWTile.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/environment/TWTile.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/exceptions/CellBlockedException.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/exceptions/CellBlockedException.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/exceptions/CellOccupiedException.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/exceptions/CellOccupiedException.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/exceptions/InsufficientFuelException.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/exceptions/InsufficientFuelException.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/exceptions/NotMovableException.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/exceptions/NotMovableException.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/planners/AstarPathGenerator$Node.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/planners/AstarPathGenerator$Node.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/planners/AstarPathGenerator$SortedList.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/planners/AstarPathGenerator$SortedList.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/planners/AstarPathGenerator.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/planners/AstarPathGenerator.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/planners/DefaultTWPlanner.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/planners/DefaultTWPlanner.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/planners/TWPath.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/planners/TWPath.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/planners/TWPathStep.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/planners/TWPathStep.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/tileworld/planners/TWPlanner.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/tileworld/planners/TWPlanner.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tileworld/Parameters.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tileworld/Parameters.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tileworld/Parameters2.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tileworld/Parameters2.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tileworld/TWGUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tileworld/TWGUI.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tileworld/TileworldMain.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tileworld/TileworldMain.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tileworld/agent/AgentInspector.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tileworld/agent/AgentInspector.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tileworld/agent/Message.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tileworld/agent/Message.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tileworld/agent/MyAgent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tileworld/agent/MyAgent.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tileworld/agent/MyMemory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tileworld/agent/MyMemory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tileworld/agent/MyMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tileworld/agent/MyMessage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tileworld/agent/MySensor.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tileworld/agent/SimpleTWAgent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tileworld/agent/SimpleTWAgent.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tileworld/agent/TWAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tileworld/agent/TWAction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tileworld/agent/TWAgent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tileworld/agent/TWAgent.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tileworld/agent/TWAgentPercept.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tileworld/agent/TWAgentPercept.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tileworld/agent/TWAgentPortrayal.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tileworld/agent/TWAgentPortrayal.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tileworld/agent/TWAgentSensor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tileworld/agent/TWAgentSensor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tileworld/agent/TWAgentWorkingMemory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tileworld/agent/TWAgentWorkingMemory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tileworld/agent/TWThought.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tileworld/agent/TWThought.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tileworld/environment/NeighbourSpiral.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tileworld/environment/NeighbourSpiral.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tileworld/environment/TWDirection.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tileworld/environment/TWDirection.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tileworld/environment/TWEntity.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tileworld/environment/TWEntity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tileworld/environment/TWEnvironment.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tileworld/environment/TWEnvironment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tileworld/environment/TWFuelStation.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tileworld/environment/TWFuelStation.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tileworld/environment/TWHole.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tileworld/environment/TWHole.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tileworld/environment/TWObject.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tileworld/environment/TWObject.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tileworld/environment/TWObjectCreator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tileworld/environment/TWObjectCreator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tileworld/environment/TWObstacle.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tileworld/environment/TWObstacle.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tileworld/environment/TWTile.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tileworld/environment/TWTile.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tileworld/exceptions/CellBlockedException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tileworld/exceptions/CellBlockedException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tileworld/exceptions/CellOccupiedException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tileworld/exceptions/CellOccupiedException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tileworld/exceptions/InsufficientFuelException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tileworld/exceptions/InsufficientFuelException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tileworld/exceptions/NotMovableException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tileworld/exceptions/NotMovableException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tileworld/planners/AstarPathGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tileworld/planners/AstarPathGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tileworld/planners/DefaultTWPlanner.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tileworld/planners/DefaultTWPlanner.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tileworld/planners/TWPath.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tileworld/planners/TWPath.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tileworld/planners/TWPathGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tileworld/planners/TWPathGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tileworld/planners/TWPathStep.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tileworld/planners/TWPathStep.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tileworld/planners/TWPlanner.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tileworld/planners/TWPlanner.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2eSu3f5P2c1IiFFYFmofIndks8m" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+  </component>
+  <component name="RunManager" selected="Application.TWGUI">
+    <configuration name="TWGUI" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="tileworld.TWGUI" />
+      <module name="Tileworld" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="tileworld.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="TileworldMain" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="tileworld.TileworldMain" />
+      <module name="Tileworld" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="tileworld.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.TWGUI" />
+        <item itemvalue="Application.TileworldMain" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="31ea883e-be46-4869-b197-1ead2c507c34" name="Changes" comment="" />
+      <created>1711910103837</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1711910103837</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

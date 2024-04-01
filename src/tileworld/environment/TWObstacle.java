@@ -1,12 +1,13 @@
 /**
- * 
+ *
  */
 package tileworld.environment;
 
-import java.awt.Color;
 import sim.portrayal.Portrayal;
 import sim.portrayal.simple.RectanglePortrayal2D;
 import sim.util.Int2D;
+
+import java.awt.*;
 
 /**
  * TWObstacle
@@ -24,25 +25,25 @@ import sim.util.Int2D;
  */
 public class TWObstacle extends TWObject {
 
-    /**
-     * @param creationTime
-     * @param deathTime
-     */
-    public TWObstacle(int x, int y, TWEnvironment env, double creationTime, double deathTime) {
-        super(x, y, env, creationTime, deathTime);
+  /**
+   * @param creationTime
+   * @param deathTime
+   */
+  public TWObstacle(int x, int y, TWEnvironment env, double creationTime, double deathTime) {
+    super(x, y, env, creationTime, deathTime);
 
-    }
+  }
 
-    public TWObstacle(Int2D pos, TWEnvironment env, Double creationTime, Double deathTime) {
-        super(pos.x, pos.y, env, creationTime, deathTime);
+  public TWObstacle(Int2D pos, TWEnvironment env, Double creationTime, Double deathTime) {
+    super(pos.x, pos.y, env, creationTime, deathTime);
 
-    }
+  }
 
-    public TWObstacle() {
-    }
+  public TWObstacle() {
+  }
 
-    public static Portrayal getPortrayal() {
-        // black filled box
-        return new RectanglePortrayal2D(new Color(0.0f, 0.0f, 0.0f), true);
-    }
+  public static Portrayal getPortrayal() {
+    // black filled box
+    return new RectanglePortrayal2D(new Color(0.0f, 0.0f, 0.0f), true);
+  }
 }

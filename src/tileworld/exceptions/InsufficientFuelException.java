@@ -10,21 +10,20 @@ package tileworld.exceptions;
  *
  * @author michaellees
  * Created: Apr 21, 2010
- *
+ * <p>
  * Copyright michaellees 2010
- *
- *
+ * <p>
+ * <p>
  * Description:
- *
  */
-public class InsufficientFuelException extends RuntimeException{
+public class InsufficientFuelException extends RuntimeException {
 
-    public InsufficientFuelException() {
-        super();
-    }
+  public InsufficientFuelException() {
+    super();
+  }
 
-    public InsufficientFuelException(String string) {
-        super(string);
-    }
+  public InsufficientFuelException(String string) {
+    super(string);
+  }
 
 }
