@@ -6,6 +6,7 @@
 package tileworld.planners;
 
 import sim.util.Int2D;
+import tileworld.agent.TWThought;
 import tileworld.environment.TWDirection;
 
 /**
@@ -14,9 +15,9 @@ import tileworld.environment.TWDirection;
  */
 public interface TWPlanner {
 
-    TWPath generatePlan();
+    TWThought generatePlan();
     boolean hasPlan();
-    void voidPlan();
+    TWThought voidPlan();
     Int2D getCurrentGoal();
     TWDirection execute();
 

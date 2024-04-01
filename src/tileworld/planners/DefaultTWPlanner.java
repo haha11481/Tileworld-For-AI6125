@@ -5,6 +5,7 @@
 package tileworld.planners;
 
 import sim.util.Int2D;
+import tileworld.agent.TWThought;
 import tileworld.environment.TWDirection;
 
 /**
@@ -41,7 +42,7 @@ import tileworld.environment.TWDirection;
  */
 public class DefaultTWPlanner implements TWPlanner {
 
-    public TWPath generatePlan() {
+    public TWThought generatePlan() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -49,7 +50,7 @@ public class DefaultTWPlanner implements TWPlanner {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public void voidPlan() {
+    public TWThought voidPlan() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
