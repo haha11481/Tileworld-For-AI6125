@@ -29,7 +29,7 @@ public class MyPlanner implements TWPlanner{
     this.pathGenerator = new AstarPathGenerator(environment, me, Parameters.lifeTime * 3);
     this.globalVision = new TWObject[environment.getxDimension()][environment.getyDimension()];
     //暂时用名字里的数字表示序号
-    int serNum = Integer.parseInt(String.valueOf(me.getName().charAt(me.getName().length())));
+    int serNum = Integer.parseInt(String.valueOf(me.getName().charAt(me.getName().length() - 1)));
     //先hardcode，默认能被整除
     int length = environment.getxDimension() / 5;
     int width = environment.getyDimension();
@@ -42,7 +42,8 @@ public class MyPlanner implements TWPlanner{
   public TWThought generatePlan() {
     switch (curStrategy) {
       case FIND_FUEL -> {
-
+        String direction = region.getScanDirection(me);
+        return moveTowards(direction);
       }
       case SCORE -> {
         if (inCurrentGoal()) {
@@ -52,23 +53,28 @@ public class MyPlanner implements TWPlanner{
             return new TWThought(TWAction.PUTDOWN, TWDirection.Z);
           } else {
             System.out.println("不可能！");
+            return randomMove();
           }
         } else {
-          return moveTo(currentGoal.x, currentGoal.y);
+          TWThought thought = moveTo(currentGoal.x, currentGoal.y);
+          if (thought == null) {
+            return randomMove();
+          } else {
+            return thought;
+          }
         }
       }
       case REFUEL -> {
-        TWFuelStation fuelStation = ((MyMemory) me.getMemory()).getFuelStation();
-        if (environment.inFuelStation(me)) {
+        if (inCurrentGoal()) {
           return new TWThought(TWAction.REFUEL, TWDirection.Z);
         } else {
-          TWPath path = pathGenerator.findPath(me.getX(), me.getY(), fuelStation.getX(), fuelStation.getY());
-          if (path == null) {
+          TWThought thought = moveTo(currentGoal.x, currentGoal.y);
+          if (thought == null) {
             System.out.println(me.getName() + " failed to find a path to fuel station!");
             return randomMove();
+          } else {
+            return thought;
           }
-          TWPathStep step = path.popNext();
-          return new TWThought(TWAction.MOVE, step.getDirection());
         }
       }
       case EXPLORE -> {
@@ -87,7 +93,30 @@ public class MyPlanner implements TWPlanner{
         return new TWThought(TWAction.MOVE, step.getDirection());
       }
       case TO_REGION -> {
-
+        if (me.getX() > region.bot) {
+          int targetX = region.bot;
+          TWThought thought = moveTo(targetX, me.getY());
+          while (thought == null) {
+            targetX += 1;
+            thought = moveTo(targetX, me.getY());
+          }
+          return thought;
+        } else if (me.getX() < region.top) {
+          int targetX = region.top;
+          TWThought thought = moveTo(targetX, me.getY());
+          while (thought == null) {
+            targetX -= 1;
+            thought = moveTo(targetX, me.getY());
+          }
+          return thought;
+        } else {
+          System.out.println("不可能！");
+          return randomMove();
+        }
+      }
+      default -> {
+        System.out.println("No such strategy: " + curStrategy);
+        return randomMove();
       }
     }
   }
@@ -95,15 +124,19 @@ public class MyPlanner implements TWPlanner{
   @Override
   public boolean hasPlan() {
     refresh();
+    // 如果你不是去加油的，也不在自己的区域里，就赶快回到自己的区域
     if (curStrategy != Strategy.REFUEL && !region.contains(me.getX(), me.getY())) {
       curStrategy = Strategy.TO_REGION;
       // TODO set curGoal
     } else if (((MyMemory) me.getMemory()).getFuelStation() == null) {
+      // 刚开始先找加油站
       curStrategy = Strategy.FIND_FUEL;
     } else if (me.needRefuel()) {
+      // 需要加油就去加油
       curStrategy = Strategy.REFUEL;
       setCurrentGoal(((MyMemory) me.getMemory()).getFuelStation());
     } else {
+      // 探索地图 or 尝试得分
       if (me.hasTile()) {
         if (me.tilesFull()) {
           // 拿不了更多tile时，有hole就去put，没有就explore
@@ -184,11 +217,48 @@ public class MyPlanner implements TWPlanner{
       return moveTo(entity.getX(), entity.getY());
   }
 
+  // 向指定方向移动，因为该方法只会在scan时调用，所以应该不需要考虑移出地图的情况
+  private TWThought moveTowards(String direction) {
+    TWThought thought = null;
+    int x = me.getX();
+    int y = me.getY();
+    switch (direction) {
+      case "left" -> {
+        while (thought == null) {
+          y -= 1;
+          thought = moveTo(x, y);
+        }
+      }
+      case "right" -> {
+        while (thought == null) {
+          y += 1;
+          thought = moveTo(x, y);
+        }
+      }
+      case "up" -> {
+        while (thought == null) {
+          x -= 1;
+          thought = moveTo(x, y);
+        }
+      }
+      case "down" -> {
+        while (thought == null) {
+          x += 1;
+          thought = moveTo(x, y);
+        }
+      }
+      case "all_done" -> {
+        System.out.println("This should not happen! We've scanned the whole map!");
+        return randomMove();
+      }
+    }
+    return thought;
+  }
+
   private TWThought moveTo(int x, int y) {
     TWPath path = pathGenerator.findPath(me.getX(), me.getY(), x, y);
     if (path == null) {
-      System.out.println(me.getName() + " failed to find a path to some entity!");
-      return randomMove();
+      return null;
     } else {
       TWPathStep step = path.popNext();
       return new TWThought(TWAction.MOVE, step.getDirection());
@@ -197,6 +267,7 @@ public class MyPlanner implements TWPlanner{
 
   // clear old info and receive new messages from the environment, called at the beginning of each time step
   private void refresh() {
+    region.update(me);
     closestHole = null;
     closestTile = null;
 
@@ -210,9 +281,9 @@ public class MyPlanner implements TWPlanner{
     for (Message m : environment.getMessages()) {
       assert m instanceof MyMessage;
       MyMessage mm = (MyMessage) m;
-      allSensedObjects.addAll(mm.getEntities());
+/*      allSensedObjects.addAll(mm.getEntities());
       allX.addAll(mm.getX());
-      allY.addAll(mm.getY());
+      allY.addAll(mm.getY());*/
       if (mm.getFuelStation() != null && ((MyMemory) me.getMemory()).getFuelStation() == null) {
         ((MyMemory) me.getMemory()).setFuelStation(mm.getFuelStation());
       }
@@ -273,7 +344,7 @@ public class MyPlanner implements TWPlanner{
 
   private void setRandomGoal() {
     Random rand = new Random();
-    int randomX = rand.nextInt(region.top - region.bot + 1) + region.bot;
+    int randomX = rand.nextInt(region.bot - region.top + 1) + region.top;
     int randomY = rand.nextInt(region.right - region.left + 1) + region.left;
     setCurrentGoalByLocation(randomX, randomY);
   }
