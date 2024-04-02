@@ -6,6 +6,7 @@ import sim.util.IntBag;
 import tileworld.Parameters;
 import tileworld.agent.*;
 import tileworld.environment.*;
+import java.util.Random;
 
 public class MyPlanner implements TWPlanner{
 
@@ -71,7 +72,19 @@ public class MyPlanner implements TWPlanner{
         }
       }
       case EXPLORE -> {
-
+        if (currentGoal == null || inCurrentGoal()) {
+          setRandomGoal();
+        }
+        TWPath path;
+        do {
+          path = pathGenerator.findPath(me.getX(), me.getY(), currentGoal.x, currentGoal.y);
+          if (path == null) {
+            System.out.println(me.getName() + " failed to find a path to the random point!");
+            setRandomGoal();
+          }
+        } while (path == null);
+        TWPathStep step = path.popNext();
+        return new TWThought(TWAction.MOVE, step.getDirection());
       }
       case TO_REGION -> {
 
@@ -250,7 +263,19 @@ public class MyPlanner implements TWPlanner{
     currentGoal = new Int2D(entity.getX(), entity.getY());
   }
 
+  private void setCurrentGoalByLocation(int x, int y) {
+    currentGoal = new Int2D(x, y);
+  }
+
   private boolean inCurrentGoal() {
     return me.getX() == currentGoal.x && me.getY() == currentGoal.y;
   }
+
+  private void setRandomGoal() {
+    Random rand = new Random();
+    int randomX = rand.nextInt(region.top - region.bot + 1) + region.bot;
+    int randomY = rand.nextInt(region.right - region.left + 1) + region.left;
+    setCurrentGoalByLocation(randomX, randomY);
+  }
+
 }
