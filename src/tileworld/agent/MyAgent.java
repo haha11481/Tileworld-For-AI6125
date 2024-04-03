@@ -46,6 +46,10 @@ public class MyAgent extends TWAgent {
       System.out.println("不可能");
       return;
     }
+
+    if (getFuelLevel() <= 0 && ((MyMemory) getMemory()).getFuelStation() == null) {
+      System.out.println("ran oof without finding fuel station!");
+    }
     //You can do:
     //move(thought.getDirection())
     //pickUpTile(Tile)

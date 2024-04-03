@@ -87,8 +87,16 @@ public class Region {
       case "up" -> {
         for (int i = 0; i < x - range; i++) {
           for (int j = y - range; j <= y - range; j++) {
-            if (j >= 0 && j <= scannedMatrix[0].length) {
+            if (j >= 0 && j < scannedMatrix[0].length) {
               res = !scannedMatrix[i][j];
+            }
+          }
+          // 已经到达了右边界
+          if (y + range >= scannedMatrix[0].length - 1) {
+            for (int j = y - range + 1; j <= y + range; j++) {
+              if (j >= 0 && j < scannedMatrix[0].length) {
+                res = !scannedMatrix[i][j];
+              }
             }
           }
         }
@@ -96,13 +104,32 @@ public class Region {
       case "down" -> {
         for (int i = x + range + 1; i < scannedMatrix.length; i++) {
           for (int j = y - range; j <= y - range; j++) {
-            if (j >= 0 && j <= scannedMatrix[0].length) {
+            if (j >= 0 && j < scannedMatrix[0].length) {
               res = !scannedMatrix[i][j];
+            }
+          }
+          // 已经到达了右边界
+          if (y + range >= scannedMatrix[0].length - 1) {
+            for (int j = y - range + 1; j <= y + range; j++) {
+              if (j >= 0 && j < scannedMatrix[0].length) {
+                res = !scannedMatrix[i][j];
+              }
             }
           }
         }
       }
     }
     return res;
+  }
+
+  // 很低效，判断区域的每一个位置都是否被扫过了
+  public boolean exploited() {
+    boolean exploited = true;
+    for (int i = 0; i < scannedMatrix.length; i ++) {
+      for (int j = 0; j < scannedMatrix[0].length; j ++) {
+        exploited = scannedMatrix[i][j];
+      }
+    }
+    return exploited;
   }
 }

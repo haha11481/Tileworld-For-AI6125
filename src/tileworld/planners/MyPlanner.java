@@ -134,14 +134,14 @@ public class MyPlanner implements TWPlanner{
     refresh();
     // 如果你不是去加油的，也不在自己的区域里，就赶快回到自己的区域
     // 是否允许跨区域得分？目前允许的话结果更好
-    if (curStrategy != Strategy.REFUEL && curStrategy != Strategy.SCORE && !region.contains(me.getX(), me.getY())) {
+    if (curStrategy != Strategy.REFUEL && curStrategy != Strategy.SCORE && curStrategy != Strategy.FIND_FUEL && !region.contains(me.getX(), me.getY())) {
       curStrategy = Strategy.TO_REGION;
       //System.out.println(region.top + " " + region.bot + " " + region.left + " " + region.right + " " + me.getX() + " " + me.getY());
-    } else if (((MyMemory) me.getMemory()).getFuelStation() == null) {
-      // 刚开始先找加油站
+    } else if (((MyMemory) me.getMemory()).getFuelStation() == null && !region.exploited()) {
+      // 刚开始，如果没找到加油站且自己的区域还没探索完，就先找加油站
       curStrategy = Strategy.FIND_FUEL;
-    } else if (me.needRefuel()) {
-      // 需要加油就去加油
+    } else if (me.needRefuel() && ((MyMemory) me.getMemory()).getFuelStation() != null) {
+      // 需要加油且找到了加油站就去加油
       curStrategy = Strategy.REFUEL;
       setCurrentGoal(((MyMemory) me.getMemory()).getFuelStation());
     } else {
