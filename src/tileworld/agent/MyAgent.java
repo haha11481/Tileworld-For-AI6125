@@ -32,7 +32,7 @@ public class MyAgent extends TWAgent {
   // TODO decide when shall we navigate to fuelStation, need better criteria
   public boolean needRefuel() {
     TWFuelStation fuelStation = ((MyMemory) getMemory()).getFuelStation();
-    return fuelStation != null && (fuelStation.getDistanceTo(this) + 5 >= this.getFuelLevel() || getFuelLevel() <= 5);
+    return fuelStation != null && (fuelStation.getDistanceTo(this) + 50 >= this.getFuelLevel() || getFuelLevel() <= 50);
   }
 
   // 返回tiles是否已经拿满
@@ -42,7 +42,10 @@ public class MyAgent extends TWAgent {
 
   @Override
   protected void act(TWThought thought) {
-
+    if (thought == null) {
+      System.out.println("不可能");
+      return;
+    }
     //You can do:
     //move(thought.getDirection())
     //pickUpTile(Tile)
@@ -59,13 +62,18 @@ public class MyAgent extends TWAgent {
       }
       case PICKUP -> {
         TWTile tile = (TWTile) getMemory().getMemoryGrid().get(x, y);
+        if (tile == null) {
+          System.out.println("impossible");
+        }
         this.pickUpTile(tile);
         this.memory.removeObject(tile);
+        this.planner.removeObject(tile);
       }
       case PUTDOWN -> {
         TWHole hole = (TWHole) getMemory().getMemoryGrid().get(x, y);
         this.putTileInHole(hole);
         this.memory.removeObject(hole);
+        this.planner.removeObject(hole);
       }
       case REFUEL -> {
         System.out.println("Agent Refuel!");

@@ -30,7 +30,7 @@ public class MyMemory extends TWAgentWorkingMemory {
   @Override
   public void removeObject(TWEntity entity) {
     super.removeObject(entity);
-
+    getMemoryGrid().set(entity.getX(), entity.getY(), null);
   }
 
   @Override
@@ -41,6 +41,8 @@ public class MyMemory extends TWAgentWorkingMemory {
       }
     }
     this.sensedObjects.clear();
+    this.sensedX.clear();
+    this.sensedY.clear();
     this.sensedObjects.addAll(sensedObjects);
     this.sensedX.addAll(objectXCoords);
     this.sensedY.addAll(objectYCoords);

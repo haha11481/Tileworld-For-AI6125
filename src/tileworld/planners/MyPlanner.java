@@ -6,6 +6,8 @@ import sim.util.IntBag;
 import tileworld.Parameters;
 import tileworld.agent.*;
 import tileworld.environment.*;
+
+import java.util.Objects;
 import java.util.Random;
 
 public class MyPlanner implements TWPlanner{
@@ -40,10 +42,15 @@ public class MyPlanner implements TWPlanner{
 
   @Override
   public TWThought generatePlan() {
+    //System.out.println(me.getName() + " strategy: " + curStrategy);
     switch (curStrategy) {
       case FIND_FUEL -> {
-        String direction = region.getScanDirection(me);
-        return moveTowards(direction);
+        if (!inCurrentGoal() && currentGoal != null && moveTo(currentGoal.x, currentGoal.y) != null) {
+          return moveTo(currentGoal.x, currentGoal.y);
+        } else {
+          String direction = region.getScanDirection(me);
+          return moveTowards(direction);
+        }
       }
       case SCORE -> {
         if (inCurrentGoal()) {
@@ -57,11 +64,7 @@ public class MyPlanner implements TWPlanner{
           }
         } else {
           TWThought thought = moveTo(currentGoal.x, currentGoal.y);
-          if (thought == null) {
-            return randomMove();
-          } else {
-            return thought;
-          }
+          return Objects.requireNonNullElseGet(thought, this::randomMove);
         }
       }
       case REFUEL -> {
@@ -81,14 +84,19 @@ public class MyPlanner implements TWPlanner{
         if (currentGoal == null || inCurrentGoal()) {
           setRandomGoal();
         }
-        TWPath path;
-        do {
+        TWPath path = pathGenerator.findPath(me.getX(), me.getY(), currentGoal.x, currentGoal.y);;
+        int maxIteration = 0;
+        // 最多重试10次，如果找不到路径就算了
+        while (path == null && maxIteration < 10) {
+          setRandomGoal();
           path = pathGenerator.findPath(me.getX(), me.getY(), currentGoal.x, currentGoal.y);
-          if (path == null) {
-            System.out.println(me.getName() + " failed to find a path to the random point!");
-            setRandomGoal();
-          }
-        } while (path == null);
+          maxIteration ++;
+        }
+        if (path == null) {
+          System.out.println(me.getName() + " failed to find a path to the random point!" + me.getX() + " " + me.getY() +
+                  " " + currentGoal.x + " " + currentGoal.y);
+          return randomMove();
+        }
         TWPathStep step = path.popNext();
         return new TWThought(TWAction.MOVE, step.getDirection());
       }
@@ -97,7 +105,7 @@ public class MyPlanner implements TWPlanner{
           int targetX = region.bot;
           TWThought thought = moveTo(targetX, me.getY());
           while (thought == null) {
-            targetX += 1;
+            targetX -= 1;
             thought = moveTo(targetX, me.getY());
           }
           return thought;
@@ -105,7 +113,7 @@ public class MyPlanner implements TWPlanner{
           int targetX = region.top;
           TWThought thought = moveTo(targetX, me.getY());
           while (thought == null) {
-            targetX -= 1;
+            targetX += 1;
             thought = moveTo(targetX, me.getY());
           }
           return thought;
@@ -125,9 +133,10 @@ public class MyPlanner implements TWPlanner{
   public boolean hasPlan() {
     refresh();
     // 如果你不是去加油的，也不在自己的区域里，就赶快回到自己的区域
-    if (curStrategy != Strategy.REFUEL && !region.contains(me.getX(), me.getY())) {
+    // 是否允许跨区域得分？目前允许的话结果更好
+    if (curStrategy != Strategy.REFUEL && curStrategy != Strategy.SCORE && !region.contains(me.getX(), me.getY())) {
       curStrategy = Strategy.TO_REGION;
-      // TODO set curGoal
+      //System.out.println(region.top + " " + region.bot + " " + region.left + " " + region.right + " " + me.getX() + " " + me.getY());
     } else if (((MyMemory) me.getMemory()).getFuelStation() == null) {
       // 刚开始先找加油站
       curStrategy = Strategy.FIND_FUEL;
@@ -141,6 +150,10 @@ public class MyPlanner implements TWPlanner{
         if (me.tilesFull()) {
           // 拿不了更多tile时，有hole就去put，没有就explore
           if (closestHole == null) {
+            // 如果前一个状态不是explore，就重设一下目的地，防止卡住
+            if (curStrategy != Strategy.EXPLORE) {
+              setRandomGoal();
+            }
             curStrategy = Strategy.EXPLORE;
           } else {
             curStrategy = Strategy.SCORE;
@@ -149,6 +162,9 @@ public class MyPlanner implements TWPlanner{
         } else {
           // 周围没tile也没hole就去explore，否则去score
           if (closestHole == null && closestTile == null) {
+            if (curStrategy != Strategy.EXPLORE) {
+              setRandomGoal();
+            }
             curStrategy = Strategy.EXPLORE;
           } else {
             curStrategy = Strategy.SCORE;
@@ -166,6 +182,9 @@ public class MyPlanner implements TWPlanner{
       } else {
         // 手里没tile，周围也没tile时，就去explore，周围有tile就去拿tile
         if (closestTile == null) {
+          if (curStrategy != Strategy.EXPLORE) {
+            setRandomGoal();
+          }
           curStrategy = Strategy.EXPLORE;
         } else {
           curStrategy = Strategy.SCORE;
@@ -248,10 +267,11 @@ public class MyPlanner implements TWPlanner{
         }
       }
       case "all_done" -> {
-        System.out.println("This should not happen! We've scanned the whole map!");
+        System.out.println(me.getName() + " has scanned its whole region!");
         return randomMove();
       }
     }
+    currentGoal = new Int2D(x, y);
     return thought;
   }
 
@@ -301,8 +321,9 @@ public class MyPlanner implements TWPlanner{
         if (!(entities.get(i) instanceof TWObject)) {
           continue;
         }
-
-        globalVision[x.get(i)][y.get(i)] = (TWObject) entities.get(i);
+        if (region.contains(x.get(i), y.get(i))) {
+          globalVision[x.get(i)][y.get(i)] = (TWObject) entities.get(i);
+        }
       }
     }
     decayVision();
@@ -316,17 +337,17 @@ public class MyPlanner implements TWPlanner{
         if (v != null) {
           if (v.getTimeLeft(environment.schedule.getTime()) <= 0) {
             globalVision[x][y] = null;
-          } else {
-            // update the closest tile & hole
-            if (v instanceof TWTile && (closestTile == null || me.closerTo(v, closestTile))) {
-              closestTile = (TWTile) v;
-            }
-            if (v instanceof TWHole && (closestHole == null || me.closerTo(v, closestHole))) {
-              closestHole = (TWHole) v;
-            }
           }
         }
       }
+    }
+    // renew the closest tile and hole
+    updateClosest();
+  }
+
+  public void removeObject(TWEntity entity) {
+    if (entity != null) {
+      globalVision[entity.getX()][entity.getY()] = null;
     }
   }
 
@@ -339,7 +360,7 @@ public class MyPlanner implements TWPlanner{
   }
 
   private boolean inCurrentGoal() {
-    return me.getX() == currentGoal.x && me.getY() == currentGoal.y;
+    return currentGoal != null && me.getX() == currentGoal.x && me.getY() == currentGoal.y;
   }
 
   private void setRandomGoal() {
@@ -349,4 +370,25 @@ public class MyPlanner implements TWPlanner{
     setCurrentGoalByLocation(randomX, randomY);
   }
 
+  private void updateClosest() {
+    closestTile = null;
+    closestHole = null;
+    for (int i = 0; i < globalVision.length; i ++) {
+      for (int j = 0; j < globalVision[0].length; j ++) {
+        if (globalVision[i][j] != null) {
+          if (globalVision[i][j] instanceof TWTile) {
+            if (closestTile == null || me.closerTo(globalVision[i][j], closestTile)) {
+              closestTile = (TWTile) globalVision[i][j];
+            }
+          }
+
+          if (globalVision[i][j] instanceof TWHole) {
+            if (closestHole == null || me.closerTo(globalVision[i][j], closestHole)) {
+              closestHole = (TWHole) globalVision[i][j];
+            }
+          }
+        }
+      }
+    }
+  }
 }
