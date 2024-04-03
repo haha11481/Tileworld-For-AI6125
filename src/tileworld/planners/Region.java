@@ -8,17 +8,17 @@ public class Region {
 
   // 左上，右上，左下，右下
   int top, bot, left, right;
-  boolean[][] scannedMatrix;
+  double[][] scannedMatrix;
   int range = Parameters.defaultSensorRange;
   public Region(int top, int bot, int left, int right) {
     this.top = top;
     this.bot = bot;
     this.left = left;
     this.right = right;
-    this.scannedMatrix = new boolean[bot - top + 1][right - left + 1];
+    this.scannedMatrix = new double[bot - top + 1][right - left + 1];
     for (int i = 0; i < scannedMatrix.length; i ++) {
       for (int j = 0; j < scannedMatrix[0].length; j ++) {
-        scannedMatrix[i][j] = false;
+        scannedMatrix[i][j] = -1;
       }
     }
   }
@@ -35,7 +35,7 @@ public class Region {
     for (int i = x - range; i <= x + range; i++) {
       for (int j = y - range; j <= y + range; j++) {
         if (i >= 0 && i < scannedMatrix.length && j >= 0 && j < scannedMatrix[0].length) {
-          scannedMatrix[i][j] = true;
+          scannedMatrix[i][j] =  agent.getEnvironment().schedule.getTime();
         }
       }
     }
@@ -72,7 +72,7 @@ public class Region {
         for (int i = 0; i < scannedMatrix.length; i++) {
           for (int j = 0; j < y - range; j++) {
             if (j < scannedMatrix[0].length) {
-              res = !scannedMatrix[i][j];
+              res = scannedMatrix[i][j] == -1;
             }
           }
         }
@@ -80,7 +80,7 @@ public class Region {
       case "right" -> {
         for (int i = 0; i < scannedMatrix.length; i++) {
           for (int j = y + range + 1; j < scannedMatrix[0].length; j++) {
-              res = !scannedMatrix[i][j];
+              res = scannedMatrix[i][j] == -1;
           }
         }
       }
@@ -88,14 +88,14 @@ public class Region {
         for (int i = 0; i < x - range; i++) {
           for (int j = y - range; j <= y - range; j++) {
             if (j >= 0 && j < scannedMatrix[0].length) {
-              res = !scannedMatrix[i][j];
+              res = scannedMatrix[i][j] == -1;
             }
           }
           // 已经到达了右边界
           if (y + range >= scannedMatrix[0].length - 1) {
             for (int j = y - range + 1; j <= y + range; j++) {
               if (j >= 0 && j < scannedMatrix[0].length) {
-                res = !scannedMatrix[i][j];
+                res = scannedMatrix[i][j] == -1;
               }
             }
           }
@@ -105,14 +105,14 @@ public class Region {
         for (int i = x + range + 1; i < scannedMatrix.length; i++) {
           for (int j = y - range; j <= y - range; j++) {
             if (j >= 0 && j < scannedMatrix[0].length) {
-              res = !scannedMatrix[i][j];
+              res = scannedMatrix[i][j] == -1;
             }
           }
           // 已经到达了右边界
           if (y + range >= scannedMatrix[0].length - 1) {
             for (int j = y - range + 1; j <= y + range; j++) {
               if (j >= 0 && j < scannedMatrix[0].length) {
-                res = !scannedMatrix[i][j];
+                res = scannedMatrix[i][j] == -1;
               }
             }
           }
@@ -127,7 +127,7 @@ public class Region {
     boolean exploited = true;
     for (int i = 0; i < scannedMatrix.length; i ++) {
       for (int j = 0; j < scannedMatrix[0].length; j ++) {
-        exploited = scannedMatrix[i][j];
+        exploited = scannedMatrix[i][j] > -1;
       }
     }
     return exploited;

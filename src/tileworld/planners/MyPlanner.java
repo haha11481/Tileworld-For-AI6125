@@ -7,8 +7,10 @@ import tileworld.Parameters;
 import tileworld.agent.*;
 import tileworld.environment.*;
 
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Random;
+
 
 public class MyPlanner implements TWPlanner{
 
@@ -28,7 +30,7 @@ public class MyPlanner implements TWPlanner{
   public MyPlanner(MyAgent me, TWEnvironment environment) {
     this.me = me;
     this.environment = environment;
-    this.pathGenerator = new AstarPathGenerator(environment, me, Parameters.lifeTime * 3);
+    this.pathGenerator = new AstarPathGenerator(environment, me, 10000000);
     this.globalVision = new TWObject[environment.getxDimension()][environment.getyDimension()];
     //暂时用名字里的数字表示序号
     int serNum = Integer.parseInt(String.valueOf(me.getName().charAt(me.getName().length() - 1)));
@@ -54,6 +56,7 @@ public class MyPlanner implements TWPlanner{
       }
       case SCORE -> {
         if (inCurrentGoal()) {
+          curStrategy = null;
           if (closestTile != null && closestTile.getX() == currentGoal.x && closestTile.getY() == currentGoal.y) {
             return new TWThought(TWAction.PICKUP, TWDirection.Z);
           } else if (closestHole != null && closestHole.getX() == currentGoal.x && closestHole.getY() == currentGoal.y) {
@@ -69,6 +72,7 @@ public class MyPlanner implements TWPlanner{
       }
       case REFUEL -> {
         if (inCurrentGoal()) {
+          curStrategy = null;
           return new TWThought(TWAction.REFUEL, TWDirection.Z);
         } else {
           TWThought thought = moveTo(currentGoal.x, currentGoal.y);
@@ -81,24 +85,58 @@ public class MyPlanner implements TWPlanner{
         }
       }
       case EXPLORE -> {
-        if (currentGoal == null || inCurrentGoal()) {
-          setRandomGoal();
+        double leftTime = 1000000;
+        double rightTime = 1000000;
+        double upTime = 1000000;
+        double downTime = 1000000;
+        if (me.getY() > region.left + 3){
+          leftTime = 0;
+          int count = 0;
+          for(int i = Math.max(region.top, me.getX() - 3); i < Math.min(region.bot, me.getX() + 3); i ++){
+            leftTime += region.scannedMatrix[i - region.top][me.getY() - 4];
+            count += 1;
+          }
+          leftTime = leftTime / count;
         }
-        TWPath path = pathGenerator.findPath(me.getX(), me.getY(), currentGoal.x, currentGoal.y);;
-        int maxIteration = 0;
-        // 最多重试10次，如果找不到路径就算了
-        while (path == null && maxIteration < 10) {
-          setRandomGoal();
-          path = pathGenerator.findPath(me.getX(), me.getY(), currentGoal.x, currentGoal.y);
-          maxIteration ++;
+        if (me.getY() < region.right - 3){
+          rightTime = 0;
+          int count = 0;
+          for(int i = Math.max(region.top, me.getX() - 3); i < Math.min(region.bot, me.getX() + 3); i ++){
+            rightTime += region.scannedMatrix[i - region.top][me.getY() + 4];
+            count += 1;
+          }
+          rightTime = rightTime / count;
         }
-        if (path == null) {
-          System.out.println(me.getName() + " failed to find a path to the random point!" + me.getX() + " " + me.getY() +
-                  " " + currentGoal.x + " " + currentGoal.y);
-          return randomMove();
+        if (me.getX() < region.bot - 3){
+          downTime = 0;
+          int count = 0;
+          for(int i = Math.max(region.left, me.getY() - 3); i < Math.min(region.right, me.getY() + 3); i ++) {
+            downTime += region.scannedMatrix[me.getX() + 4 - region.top][i];
+            count += 1;
+          }
+          downTime = downTime / count;
         }
-        TWPathStep step = path.popNext();
-        return new TWThought(TWAction.MOVE, step.getDirection());
+        if (me.getX() > region.top + 3){
+          upTime = 0;
+          int count = 0;
+          for(int i = Math.max(region.left, me.getY() - 3); i < Math.min(region.right, me.getY() + 3); i ++) {
+            upTime += region.scannedMatrix[me.getX() - 4 - region.top][i];
+            count += 1;
+          }
+          upTime = upTime / count;
+        }
+        double min1 = Math.min(leftTime, rightTime);
+        double min2 = Math.min(upTime, downTime);
+        double min = Math.min(min1, min2);
+        if (min == leftTime){
+          return moveTowards("left");
+        }else if (min == rightTime){
+          return moveTowards("right");
+        }else if (min == upTime){
+          return moveTowards("up");
+        }else{
+          return moveTowards("down");
+        }
       }
       case TO_REGION -> {
         if (me.getX() > region.bot) {
