@@ -5,6 +5,7 @@ import sim.util.Bag;
 import sim.util.IntBag;
 import tileworld.environment.TWEntity;
 import tileworld.environment.TWFuelStation;
+import tileworld.environment.TWObject;
 
 public class MyMemory extends TWAgentWorkingMemory {
 
@@ -47,6 +48,7 @@ public class MyMemory extends TWAgentWorkingMemory {
     this.sensedX.addAll(objectXCoords);
     this.sensedY.addAll(objectYCoords);
     super.updateMemory(sensedObjects, objectXCoords, objectYCoords, sensedAgents, agentXCoords, agentYCoords);
+    decayMemory();
   }
 
   public Bag getSensedObjects() {
@@ -59,5 +61,21 @@ public class MyMemory extends TWAgentWorkingMemory {
 
   public IntBag getSensedY() {
     return sensedY;
+  }
+
+  // 删除已经死亡的tile/hole/obstacle
+  @Override
+  public void decayMemory() {
+    for (int x = 0; x < getMemoryGrid().getHeight(); x++) {
+      for (int y = 0; y < getMemoryGrid().getWidth(); y++) {
+        Object o = getMemoryGrid().get(x, y);
+        if (o instanceof TWObject) {
+          if (((TWObject) o).getTimeLeft(getSimulationTime()) <= 0) {
+            getMemoryGrid().set(x, y, null);
+            objects[x][y] = null;
+          }
+        }
+      }
+    }
   }
 }

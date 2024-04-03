@@ -59,7 +59,7 @@ public class MyPlanner implements TWPlanner{
           } else if (closestHole != null && closestHole.getX() == currentGoal.x && closestHole.getY() == currentGoal.y) {
             return new TWThought(TWAction.PUTDOWN, TWDirection.Z);
           } else {
-            System.out.println("不可能！");
+            System.out.println("Impossible!");
             return randomMove();
           }
         } else {
@@ -117,8 +117,24 @@ public class MyPlanner implements TWPlanner{
             thought = moveTo(targetX, me.getY());
           }
           return thought;
+        } else if (me.getY() < region.left) {
+          int targetY = region.left;
+          TWThought thought = moveTo(me.getX(), targetY);
+          while (thought == null) {
+            targetY += 1;
+            thought = moveTo(me.getX(), targetY);
+          }
+          return thought;
+        } else if (me.getY() > region.right) {
+          int targetY = region.right;
+          TWThought thought = moveTo(me.getX(), targetY);
+          while (thought == null) {
+            targetY -= 1;
+            thought = moveTo(me.getX(), targetY);
+          }
+          return thought;
         } else {
-          System.out.println("不可能！");
+          System.out.println("Impossible!");
           return randomMove();
         }
       }
@@ -301,9 +317,9 @@ public class MyPlanner implements TWPlanner{
     for (Message m : environment.getMessages()) {
       assert m instanceof MyMessage;
       MyMessage mm = (MyMessage) m;
-/*      allSensedObjects.addAll(mm.getEntities());
+      allSensedObjects.addAll(mm.getEntities());
       allX.addAll(mm.getX());
-      allY.addAll(mm.getY());*/
+      allY.addAll(mm.getY());
       if (mm.getFuelStation() != null && ((MyMemory) me.getMemory()).getFuelStation() == null) {
         ((MyMemory) me.getMemory()).setFuelStation(mm.getFuelStation());
       }
@@ -365,11 +381,12 @@ public class MyPlanner implements TWPlanner{
 
   private void setRandomGoal() {
     Random rand = new Random();
-    int randomX = rand.nextInt(region.bot - region.top + 1) + region.top;
-    int randomY = rand.nextInt(region.right - region.left + 1) + region.left;
+    int randomX = rand.nextInt(region.top, region.bot + 1);
+    int randomY = rand.nextInt(region.left, region.right + 1);
     setCurrentGoalByLocation(randomX, randomY);
   }
 
+  // 低效方法，每个time step都遍历整个地图来更新离自己最近的tile和hole
   private void updateClosest() {
     closestTile = null;
     closestHole = null;
@@ -377,13 +394,13 @@ public class MyPlanner implements TWPlanner{
       for (int j = 0; j < globalVision[0].length; j ++) {
         if (globalVision[i][j] != null) {
           if (globalVision[i][j] instanceof TWTile) {
-            if (closestTile == null || me.closerTo(globalVision[i][j], closestTile)) {
+            if (closestTile == null || me.closerTo(globalVision[i][j], closestTile) && me.getDistanceTo(globalVision[i][j]) <= globalVision[i][j].getTimeLeft(environment.schedule.getTime())) {
               closestTile = (TWTile) globalVision[i][j];
             }
           }
 
           if (globalVision[i][j] instanceof TWHole) {
-            if (closestHole == null || me.closerTo(globalVision[i][j], closestHole)) {
+            if (closestHole == null || me.closerTo(globalVision[i][j], closestHole) && me.getDistanceTo(globalVision[i][j]) <= globalVision[i][j].getTimeLeft(environment.schedule.getTime())) {
               closestHole = (TWHole) globalVision[i][j];
             }
           }

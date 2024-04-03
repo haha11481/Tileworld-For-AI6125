@@ -56,7 +56,7 @@ public class TWAgentWorkingMemory {
 	 * Here we trade off memory (in that we maintain a complete image of the map)
 	 * for speed of update. Updating the memory is a lot more straightforward.
 	 */
-	private TWAgentPercept[][] objects;
+	protected TWAgentPercept[][] objects;
 	/**
 	 * Number of items recorded in memory, currently doesn't decrease as memory
 	 * is not degraded - nothing is ever removed!
@@ -202,7 +202,7 @@ public class TWAgentWorkingMemory {
 	/**
 	 * @return
 	 */
-	private double getSimulationTime() {
+	protected double getSimulationTime() {
 		return schedule.getTime();
 	}
 

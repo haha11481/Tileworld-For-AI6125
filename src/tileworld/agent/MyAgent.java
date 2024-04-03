@@ -3,6 +3,7 @@ package tileworld.agent;
 import sim.util.Bag;
 import sim.util.Int2D;
 import sim.util.IntBag;
+import tileworld.Parameters;
 import tileworld.environment.*;
 import tileworld.exceptions.CellBlockedException;
 import tileworld.planners.*;
@@ -32,7 +33,7 @@ public class MyAgent extends TWAgent {
   // TODO decide when shall we navigate to fuelStation, need better criteria
   public boolean needRefuel() {
     TWFuelStation fuelStation = ((MyMemory) getMemory()).getFuelStation();
-    return fuelStation != null && (fuelStation.getDistanceTo(this) + 50 >= this.getFuelLevel() || getFuelLevel() <= 50);
+    return fuelStation != null && (fuelStation.getDistanceTo(this) + 25 >= this.getFuelLevel() && this.getFuelLevel() < Parameters.endTime - getEnvironment().schedule.getTime());
   }
 
   // 返回tiles是否已经拿满
@@ -48,7 +49,7 @@ public class MyAgent extends TWAgent {
     }
 
     if (getFuelLevel() <= 0 && ((MyMemory) getMemory()).getFuelStation() == null) {
-      System.out.println("ran oof without finding fuel station!");
+      System.out.println(getName() + " ran oof without finding fuel station!");
     }
     //You can do:
     //move(thought.getDirection())
