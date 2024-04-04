@@ -47,12 +47,31 @@ public class MyPlanner implements TWPlanner{
     this.globalVision = new TWObject[environment.getxDimension()][environment.getyDimension()];
     //暂时用名字里的数字表示序号
     int serNum = me.getSerNum();
+//    int length = environment.getxDimension() / 5;
+//    int width = environment.getyDimension();
+//    int top = (serNum - 1) * length;
+//    int bot = top + length - 1;
+//    this.region = new Region(top, bot, 0, width - 1);
     //先hardcode，默认能被整除
-    int length = environment.getxDimension() / 5;
-    int width = environment.getyDimension();
-    int top = (serNum - 1) * length;
-    int bot = top + length - 1;
-    this.region = new Region(top, bot, 0, width - 1);
+    int length = environment.getxDimension() / 2;
+    int width = environment.getyDimension() / 2;
+    switch (serNum) {
+      case 1 -> {
+        this.region = new Region(0, length - 1, 0, width - 1);
+      }
+      case 2 -> {
+        this.region = new Region(0, length - 1, width, 2 * width - 1);
+      }
+      case 3 -> {
+        this.region = new Region(length, 2 * length - 1, 0, width - 1);
+      }
+      case 4 -> {
+        this.region = new Region(length, 2 * length - 1, width, 2 * width - 1);
+      }
+      default -> {
+        this.region = new Region(0, 2 * length - 1, 0, 2 * width - 1);
+      }
+    }
   }
 
   @Override
