@@ -307,15 +307,12 @@ public class MyPlanner implements TWPlanner{
 
   // clear old info and receive new messages from the environment, called at the beginning of each time step
   private void refresh() {
-    region.update(me);
     clearOldInfo();
-    allSensedObjects.addAll(((MyMemory) me.getMemory()).getSensedObjects());
-    allX.addAll(((MyMemory) me.getMemory()).getSensedX());
-    allY.addAll(((MyMemory) me.getMemory()).getSensedY());
 
     for (Message m : environment.getMessages()) {
       assert m instanceof MyMessage;
       MyMessage mm = (MyMessage) m;
+      region.update(mm.getAgentPos().x, mm.getAgentPos().y, me.getEnvironment().schedule.getTime());
       allSensedObjects.addAll(mm.getEntities());
       allX.addAll(mm.getX());
       allY.addAll(mm.getY());
@@ -341,9 +338,6 @@ public class MyPlanner implements TWPlanner{
         if (!(entities.get(i) instanceof TWObject)) {
           continue;
         }
-        /*if (region.contains(x.get(i), y.get(i))) {
-          globalVision[x.get(i)][y.get(i)] = (TWObject) entities.get(i);
-        }*/
         globalVision[x.get(i)][y.get(i)] = (TWObject) entities.get(i);
       }
     }

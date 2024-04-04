@@ -28,13 +28,13 @@ public class Region {
   }
 
   // 更新哪些位置被agent sense过了
-  public void update(TWAgent agent) {
-    int x = agent.getX() - top;
-    int y = agent.getY();
+  public void update(int x, int y, double currentTime) {
+    x = x - top;
+    y = y - left;
     for (int i = x - range; i <= x + range; i++) {
       for (int j = y - range; j <= y + range; j++) {
         if (i >= 0 && i < scannedMatrix.length && j >= 0 && j < scannedMatrix[0].length) {
-          scannedMatrix[i][j] =  agent.getEnvironment().schedule.getTime();
+          scannedMatrix[i][j] = currentTime;
         }
       }
     }
@@ -51,6 +51,7 @@ public class Region {
    * @return  string: left, right, up, down
    */
   public String getExploreDirection(TWAgent me, double currentTime) {
+    assert this.contains(me.getX(), me.getY());
     double leftTime = 0;
     double rightTime = 0;
     double upTime = 0;
@@ -81,11 +82,33 @@ public class Region {
     double max1 = Math.max(leftTime, rightTime);
     double max2 = Math.max(upTime, downTime);
     double max = Math.max(max1, max2);
-    if (max == leftTime){
+    if (max == 0) {
+      return againstBorder(me.getX(), me.getY());
+    } else if (max == leftTime){
       return "left";
     } else if (max == rightTime){
       return "right";
     } else if (max == upTime){
+      return "up";
+    } else {
+      return "down";
+    }
+  }
+
+  // 向离边界最远的反方向走。。
+  private String againstBorder(int x, int y) {
+    int l = y - left;
+    int r = right - y;
+    int u = x - top;
+    int d = bot - x;
+    double max1 = Math.max(l, r);
+    double max2 = Math.max(u, d);
+    double max = Math.max(max1, max2);
+    if (max == l){
+      return "left";
+    } else if (max == r){
+      return "right";
+    } else if (max == u){
       return "up";
     } else {
       return "down";
@@ -106,7 +129,7 @@ public class Region {
    */
   public String getScanDirection(TWAgent agent) {
     int x = agent.getX() - top;
-    int y = agent.getY();
+    int y = agent.getY() - left;
     if (hasUndiscoveredPos(x, y, "left")) {
       return "left";
     } else if (hasUndiscoveredPos(x, y, "down")) {
