@@ -94,12 +94,18 @@ public class MyAgent extends TWAgent {
 
   @Override
   public void communicate() {
-    Bag entities = ((MyMemory) this.memory).getSensedObjects();
-    IntBag x = ((MyMemory) this.memory).getSensedX();
-    IntBag y = ((MyMemory) this.memory).getSensedY();
+    MyMemory mm = (MyMemory) this.memory;
+    Bag entities = mm.getSensedObjects();
+    IntBag x = mm.getSensedX();
+    IntBag y = mm.getSensedY();
     // 时刻共享fuelStation的信息
-    Message message = new MyMessage(entities, x, y,
-            ((MyMemory) this.getMemory()).getFuelStation(), planner.getCurrentGoal(), new Int2D(this.x, this.y));
+    Message message = new MyMessage(entities, x, y, mm.getFuelStation(), planner.getCurrentGoal(),
+            new Int2D(this.x, this.y), planner.getCurStrategy(), getSerNum(), mm.getRemovedObj());
     this.getEnvironment().receiveMessage(message);
+  }
+
+  // TODO 分配agent的编号，来点更合理的方法
+  public int getSerNum() {
+    return Integer.parseInt(String.valueOf(getName().charAt(getName().length() - 1)));
   }
 }

@@ -13,6 +13,7 @@ public class MyMemory extends TWAgentWorkingMemory {
   private final Bag sensedObjects = new Bag();
   private final IntBag sensedX = new IntBag();
   private final IntBag sensedY = new IntBag();
+  private TWEntity removedObj;
 
   public MyMemory(TWAgent moi, Schedule schedule, int x, int y) {
     super(moi, schedule, x, y);
@@ -31,6 +32,7 @@ public class MyMemory extends TWAgentWorkingMemory {
   @Override
   public void removeObject(TWEntity entity) {
     super.removeObject(entity);
+    removedObj = entity;
     getMemoryGrid().set(entity.getX(), entity.getY(), null);
   }
 
@@ -44,6 +46,7 @@ public class MyMemory extends TWAgentWorkingMemory {
     this.sensedObjects.clear();
     this.sensedX.clear();
     this.sensedY.clear();
+    this.removedObj = null;
     this.sensedObjects.addAll(sensedObjects);
     this.sensedX.addAll(objectXCoords);
     this.sensedY.addAll(objectYCoords);
@@ -77,5 +80,9 @@ public class MyMemory extends TWAgentWorkingMemory {
         }
       }
     }
+  }
+
+  public TWEntity getRemovedObj() {
+    return removedObj;
   }
 }

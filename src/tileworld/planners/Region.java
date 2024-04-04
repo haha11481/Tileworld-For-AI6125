@@ -1,6 +1,5 @@
 package tileworld.planners;
 
-import sim.util.Int2D;
 import tileworld.Parameters;
 import tileworld.agent.TWAgent;
 
@@ -39,6 +38,62 @@ public class Region {
         }
       }
     }
+  }
+
+  /**
+   * 获取agent下一步需要explore的方向，具体策略为：
+   *
+   * 记当前时间为n，位置(i,j)最后一次被sense到的时间为t(i,j)
+   * d(i,j) = n - t(i,j) 表示该位置距离最后一次被sense所经过的时间，d越大则越有可能生成tile或hole
+   * 对于上下左右每个方向，记录向该方向移动后能sense到的d(i,j)之和S，向S最大的方向移动
+   *
+   * @param me
+   * @return  string: left, right, up, down
+   */
+  public String getExploreDirection(TWAgent me, double currentTime) {
+    double leftTime = 0;
+    double rightTime = 0;
+    double upTime = 0;
+    double downTime = 0;
+    int x = me.getX() - top;
+    int y = me.getY() - left;
+    for (int i = x - range; i <= x + range; i ++) {
+      if (validPos(i, y - range - 1)) {
+        leftTime += currentTime - scannedMatrix[i][y - range - 1];
+      }
+    }
+    for (int i = x - range; i <= x + range; i ++) {
+      if (validPos(i, y + range + 1)) {
+        rightTime += currentTime - scannedMatrix[i][y + range + 1];
+      }
+    }
+    for (int i = y - range; i <= y + range; i ++) {
+      if (validPos(x - range - 1, i)) {
+        upTime += currentTime - scannedMatrix[x - range - 1][i];
+      }
+    }
+    for (int i = y - range; i <= y + range; i ++) {
+      if (validPos(x + range + 1, i)) {
+        downTime += currentTime - scannedMatrix[x + range + 1][i];
+      }
+    }
+
+    double max1 = Math.max(leftTime, rightTime);
+    double max2 = Math.max(upTime, downTime);
+    double max = Math.max(max1, max2);
+    if (max == leftTime){
+      return "left";
+    } else if (max == rightTime){
+      return "right";
+    } else if (max == upTime){
+      return "up";
+    } else {
+      return "down";
+    }
+  }
+
+  private boolean validPos(int x, int y) {
+    return x >= 0 && x < scannedMatrix.length && y >= 0 && y < scannedMatrix[0].length;
   }
 
   /**
