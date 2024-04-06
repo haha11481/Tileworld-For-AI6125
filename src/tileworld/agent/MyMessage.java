@@ -5,6 +5,7 @@ import sim.util.Int2D;
 import sim.util.IntBag;
 import tileworld.environment.TWEntity;
 import tileworld.environment.TWFuelStation;
+import tileworld.planners.Region;
 import tileworld.planners.Strategy;
 
 public class MyMessage extends Message {
@@ -17,9 +18,9 @@ public class MyMessage extends Message {
   private final Strategy strategy;
   private final int serNum;
   private final TWEntity removedObj;
+  private final Region region;
 
-  // TODO 需要加入，如本agent的状态或者位置信息， 预期将执行的action等
-  public MyMessage(Bag entities, IntBag x, IntBag y, TWFuelStation fuelStation, Int2D currentGoal, Int2D agentPos, Strategy strategy, int serNum, TWEntity removedObj) {
+  public MyMessage(Bag entities, IntBag x, IntBag y, TWFuelStation fuelStation, Int2D currentGoal, Int2D agentPos, Strategy strategy, int serNum, TWEntity removedObj, Region region) {
     super("", "", "");
     this.entities = entities;
     this.x = x;
@@ -30,6 +31,7 @@ public class MyMessage extends Message {
     this.strategy = strategy;
     this.serNum = serNum;
     this.removedObj = removedObj;
+    this.region = region;
   }
 
   public Bag getEntities() {
@@ -66,5 +68,9 @@ public class MyMessage extends Message {
 
   public TWEntity getRemovedObj() {
     return this.removedObj;
+  }
+
+  public Region getRegion() {
+    return region;
   }
 }

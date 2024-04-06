@@ -7,7 +7,6 @@ import tileworld.agent.*;
 import tileworld.environment.*;
 
 import java.util.ArrayList;
-import java.util.Objects;
 import java.util.Random;
 
 
@@ -24,7 +23,7 @@ public class MyPlanner implements TWPlanner{
   public TWHole closestHole = null;
   public TWTile closestTile = null;
   private Strategy curStrategy = null;
-  private final Region region;
+  private Region region;
 
   // 其他agent的位置
   private final ArrayList<Int2D> othersPos = new ArrayList<>();
@@ -36,9 +35,18 @@ public class MyPlanner implements TWPlanner{
   private final ArrayList<TWEntity> othersRemove = new ArrayList<>();
   // 其他agent的序号，用来判断这个消息是不是自己发的
   private final ArrayList<Integer> othersSerNum = new ArrayList<>();
+  // 其他agent的区域，是否可以两两交换达到最高效率
+  private final ArrayList<Region> othersRegion = new ArrayList<>();
+  // 是否开启区域切换，开启后在每个time step都采用最优的区域分配策略
+  // 有用，但没什么大用
+  private final boolean enableRegionSwapping = true;
 
   // 当前目标的最大距离限制，超过该距离就不设为目标了
-  private final int distanceThreshold = 12;
+  private int distanceThreshold;
+  private boolean explorer = false;
+  // 决定explore时的方向，越大表示越看重未来的探索方向，有点用
+  private int sight;
+  private final Region[] regions = new Region[5];
 
   public MyPlanner(MyAgent me, TWEnvironment environment) {
     this.me = me;
@@ -47,38 +55,80 @@ public class MyPlanner implements TWPlanner{
     this.globalVision = new TWObject[environment.getxDimension()][environment.getyDimension()];
     //暂时用名字里的数字表示序号
     int serNum = me.getSerNum();
-//    int length = environment.getxDimension() / 5;
-//    int width = environment.getyDimension();
-//    int top = (serNum - 1) * length;
-//    int bot = top + length - 1;
-//    this.region = new Region(top, bot, 0, width - 1);
-    //先hardcode，默认能被整除
-    int length = environment.getxDimension() / 2;
-    int width = environment.getyDimension() / 2;
+    buildRegions(0);
+
+    // 决定agent的类型
     switch (serNum) {
-      case 1 -> {
-        this.region = new Region(0, length - 1, 0, width - 1);
-      }
-      case 2 -> {
-        this.region = new Region(0, length - 1, width, 2 * width - 1);
-      }
-      case 3 -> {
-        this.region = new Region(length, 2 * length - 1, 0, width - 1);
-      }
-      case 4 -> {
-        this.region = new Region(length, 2 * length - 1, width, 2 * width - 1);
+      case 5 -> {
+        this.region = regions[serNum - 1];
+        explorerSetup();
       }
       default -> {
-        this.region = new Region(0, 2 * length - 1, 0, 2 * width - 1);
+        normalSetup();
+        this.region = regions[serNum - 1];
       }
     }
   }
 
+  // 普通agent的参数配置
+  private void normalSetup() {
+    this.explorer = false;
+    this.distanceThreshold = 10;
+    this.sight = 3;
+  }
+
+  // explorer的参数配置
+  private void explorerSetup() {
+    this.explorer = true;
+    this.distanceThreshold = 25;
+    this.sight = 5;
+  }
+
+  // 田字格分区 + 一个explorer，overlap代表每个分区向外延申多少格
+  private void buildRegions(int overlap) {
+    int border = 5;
+    int length = environment.getxDimension() / 2;
+    int width = environment.getyDimension() / 2;
+    regions[0] = new Region(0, length - 1 + overlap, 0, width - 1 + overlap);
+    regions[1] = new Region(0, length - 1 + overlap, width - overlap, 2 * width - 1);
+    regions[2] = new Region(length - overlap, 2 * length - 1, 0, width - 1 + overlap);
+    regions[3] = new Region(length - overlap, 2 * length - 1, width - overlap, 2 * width - 1);
+    regions[4] = new Region(0 + border, 2 * length - 1 - border, 0 + border, 2 * width - 1 - border);
+  }
+
+  // 瞎几把写的，横两刀竖一刀切，b用没有
+  private void buildRegions2(int overlap) {
+    int border = 0;
+    int length = environment.getxDimension();
+    int width = environment.getyDimension() / 2;
+    regions[0] = new Region(0, length - 1 + overlap, 0, width - 1 + overlap);
+    regions[1] = new Region(0, length - 1 + overlap, width - overlap, 2 * width - 1);
+    regions[2] = new Region(0 + border, length/3 - 1 - border, 0 + border, 2 * width - 1 - border);
+    regions[3] = new Region(0 + length/3 - border, length*2/3 - 1 - border, 0 + border, 2 * width - 1 - border);
+    regions[4] = new Region(0 + length*2/3 - border, length - 1 - border, 0 + border, 2 * width - 1 - border);
+  }
+
+  // 横着均分成五份，overlap代表每个区域向外延申几格
+  private void buildRegions1(int overlap) {
+    int length = environment.getxDimension() / 5;
+    int width = environment.getyDimension();
+    for (int i = 0; i < 5;  i ++) {
+      regions[i] = new Region(Math.max(0, i * length - overlap), Math.min((i + 1) * length - 1 + overlap, environment.getxDimension() - 1), 0, width - 1);
+    }
+    /*regions[0].bot += overlap;
+    regions[4].top -= overlap;*/
+  }
+
   @Override
   public TWThought generatePlan() {
-    //System.out.println(me.getName() + " strategy: " + curStrategy);
+    // System.out.println(me.getName() + " strategy: " + curStrategy + " " + region.contains(me.getX(), me.getY()));
     switch (curStrategy) {
       case FIND_FUEL -> {
+        if (!region.contains(me.getX(), me.getY())) {
+          // 先回到自己的区域
+          curStrategy = Strategy.TO_REGION;
+          return returnToRegion();
+        }
         if (!inCurrentGoal() && currentGoal != null && moveTo(currentGoal.x, currentGoal.y) != null) {
           return moveTo(currentGoal.x, currentGoal.y);
         } else {
@@ -99,7 +149,12 @@ public class MyPlanner implements TWPlanner{
           }
         } else {
           TWThought thought = moveTo(currentGoal.x, currentGoal.y);
-          return Objects.requireNonNullElseGet(thought, this::randomMove);
+          if (thought == null) {
+            System.out.println("NO! This should not happen!");
+            return randomMove();
+          } else {
+            return thought;
+          }
         }
       }
       case REFUEL -> {
@@ -122,7 +177,7 @@ public class MyPlanner implements TWPlanner{
           curStrategy = Strategy.TO_REGION;
           return returnToRegion();
         }
-        String direction = region.getExploreDirection(me, environment.schedule.getTime());
+        String direction = region.getExploreDirection(me, environment.schedule.getTime(), sight);
         return moveTowards(direction);
       }
       case TO_REGION -> {
@@ -138,28 +193,22 @@ public class MyPlanner implements TWPlanner{
   @Override
   public boolean hasPlan() {
     refresh();
+    TWFuelStation fuelStation = ((MyMemory) me.getMemory()).getFuelStation();
 
-    if (me.needRefuel() && ((MyMemory) me.getMemory()).getFuelStation() != null) {
+    if (me.needRefuel() && fuelStation != null) {
       // 需要加油且找到了加油站就去加油
       curStrategy = Strategy.REFUEL;
-      setCurrentGoal(((MyMemory) me.getMemory()).getFuelStation());
-    } else if (curStrategy != Strategy.SCORE && curStrategy != Strategy.FIND_FUEL && !region.contains(me.getX(), me.getY())) {
-      // 如果你不是为了得分或者找加油站而跑到了自己的区域外，就赶紧回去
-      curStrategy = Strategy.TO_REGION;
-      //System.out.println(region.top + " " + region.bot + " " + region.left + " " + region.right + " " + me.getX() + " " + me.getY());
-    } else if (((MyMemory) me.getMemory()).getFuelStation() == null && !region.exploited()) {
+      setCurrentGoal(fuelStation);
+    } else if (fuelStation == null && !region.exploited() && !explorer) {
       // 刚开始，如果没找到加油站且自己的区域还没探索完，就先找加油站
       curStrategy = Strategy.FIND_FUEL;
     } else {
       // 探索地图 or 尝试得分
       if (me.hasTile()) {
-        if (me.tilesFull()) {
+        if (me.countTiles() >= 3) {
           // 拿不了更多tile时，有hole就去put，没有就explore
           if (closestHole == null) {
             // 如果前一个状态不是explore，就重设一下目的地，防止卡住
-            if (curStrategy != Strategy.EXPLORE) {
-              setRandomGoal();
-            }
             curStrategy = Strategy.EXPLORE;
           } else {
             curStrategy = Strategy.SCORE;
@@ -168,9 +217,6 @@ public class MyPlanner implements TWPlanner{
         } else {
           // 周围没tile也没hole就去explore，否则去score
           if (closestHole == null && closestTile == null) {
-            if (curStrategy != Strategy.EXPLORE) {
-              setRandomGoal();
-            }
             curStrategy = Strategy.EXPLORE;
           } else {
             curStrategy = Strategy.SCORE;
@@ -178,19 +224,16 @@ public class MyPlanner implements TWPlanner{
               setCurrentGoal(closestHole);
             } else if (closestHole == null) {
               setCurrentGoal(closestTile);
-            } else if (me.closerTo(closestHole, closestTile)) {
-              setCurrentGoal(closestHole);
-            } else {
+            } else if (me.closerTo(closestTile, closestHole)) {
               setCurrentGoal(closestTile);
+            } else {
+              setCurrentGoal(closestHole);
             }
           }
         }
       } else {
         // 手里没tile，周围也没tile时，就去explore，周围有tile就去拿tile
         if (closestTile == null) {
-          if (curStrategy != Strategy.EXPLORE) {
-            setRandomGoal();
-          }
           curStrategy = Strategy.EXPLORE;
         } else {
           curStrategy = Strategy.SCORE;
@@ -303,6 +346,7 @@ public class MyPlanner implements TWPlanner{
     othersStrategy.clear();
     othersRemove.clear();
     othersSerNum.clear();
+    othersRegion.clear();
   }
 
   // clear old info and receive new messages from the environment, called at the beginning of each time step
@@ -321,11 +365,25 @@ public class MyPlanner implements TWPlanner{
       othersStrategy.add(mm.getStrategy());
       othersRemove.add(mm.getRemovedObj());
       othersSerNum.add(mm.getSerNum());
+      othersRegion.add(mm.getRegion());
       if (mm.getFuelStation() != null && ((MyMemory) me.getMemory()).getFuelStation() == null) {
         ((MyMemory) me.getMemory()).setFuelStation(mm.getFuelStation());
       }
     }
+    if (enableRegionSwapping) {
+      swapRegion();
+    }
     updateVision(allSensedObjects, allX, allY);
+  }
+
+  private void swapRegion() {
+    improveRegionDistribute();
+    for (int i = 0; i < othersSerNum.size(); i ++) {
+      if (othersSerNum.get(i) == me.getSerNum()) {
+        region = othersRegion.get(i);
+      }
+    }
+
   }
 
   // update the agent's recognition of the world based on all the information (from its memory + from other agents)
@@ -344,13 +402,13 @@ public class MyPlanner implements TWPlanner{
     decayVision();
   }
 
-  // remove objects that are already gone
+  // remove objects that are already gone or will be gone when we reach them
   private void decayVision() {
     for (int x = 0; x < this.globalVision.length; x++) {
       for (int y = 0; y < this.globalVision[x].length; y++) {
         TWObject v = globalVision[x][y];
         if (v != null) {
-          if (v.getTimeLeft(environment.schedule.getTime()) <= 0) {
+          if (canForget(globalVision[x][y])) {
             globalVision[x][y] = null;
           }
         }
@@ -400,24 +458,43 @@ public class MyPlanner implements TWPlanner{
       for (int j = 0; j < globalVision[0].length; j ++) {
         if (globalVision[i][j] != null && !hasConflict(globalVision[i][j])) {
           if (globalVision[i][j] instanceof TWTile) {
-            if ((closestTile == null || me.closerTo(globalVision[i][j], closestTile)) &&
-                    me.getDistanceTo(i, j) < globalVision[i][j].getTimeLeft(environment.schedule.getTime())) {
-              if (me.getDistanceTo(i, j) <= distanceThreshold) {
-                closestTile = (TWTile) globalVision[i][j];
-              }
+            if (me.getDistanceTo(i, j) <= distanceThreshold) {
+              closestTile = (TWTile) priority(closestTile, globalVision[i][j]);
             }
           }
 
           if (globalVision[i][j] instanceof TWHole) {
-            if ((closestHole == null || me.closerTo(globalVision[i][j], closestHole)) &&
-                    me.getDistanceTo(i, j) < globalVision[i][j].getTimeLeft(environment.schedule.getTime())) {
-              if (me.getDistanceTo(i, j) <= distanceThreshold) {
-                closestHole = (TWHole) globalVision[i][j];
-              }
+            if (me.getDistanceTo(i, j) <= distanceThreshold) {
+              closestHole = (TWHole) priority(closestHole, globalVision[i][j]);
             }
           }
         }
       }
+    }
+  }
+
+  // 如果先去a会导致b消失，先去b则不会，说明b优先级更高
+  // 可能有点用
+  public TWObject priority(TWObject a, TWObject b) {
+    if (a == null && b == null) {
+      return null;
+    } else if (a == null) {
+      return b;
+    } else if (b == null) {
+      return a;
+    }
+
+    // 这里的2是因为到达之后还要花一个time step执行put或者pick
+    double dab = me.getDistanceTo(a) + a.getDistanceTo(b) + 2;
+    double dba = me.getDistanceTo(b) + b.getDistanceTo(a) + 2;
+    double ta = a.getTimeLeft(environment.schedule.getTime());
+    double tb = b.getTimeLeft(environment.schedule.getTime());
+
+    // 无论先去哪个都会导致另一个消失 或者先去哪个都不会导致另一个消失 就去最近的
+    if ((ta < dba && tb < dab) || (ta >= dba && tb >= dab)) {
+      return me.closerTo(a, b) ? a : b;
+    } else {
+      return ta < dba ? a : b;
     }
   }
 
@@ -438,9 +515,8 @@ public class MyPlanner implements TWPlanner{
           if (entity.getDistanceTo(agentX, agentY) < entity.getDistanceTo(me.getX(), me.getY())) {
             conflict = true;
           } else if (entity.getDistanceTo(agentX, agentY) == entity.getDistanceTo(me.getX(), me.getY())) {
-            if (!region.contains(entity.getX(), entity.getY())) {
-              conflict = true;
-            }
+            // 目标距离相同，那就让编号大的来
+            conflict = me.getSerNum() < othersSerNum.get(i);
           }
         }
       }
@@ -485,6 +561,58 @@ public class MyPlanner implements TWPlanner{
     } else {
       System.out.println("Impossible!");
       return randomMove();
+    }
+  }
+
+  public Region getRegion() {
+    return region;
+  }
+
+  // 交换othersRegion的区域，直到每个agent到其区域中心的距离之和不能更小
+  private void improveRegionDistribute() {
+    boolean improve = true;
+    int originaltd = totalDistanceToCentre();
+    while (improve) {
+      improve = false;
+      int td = totalDistanceToCentre();
+      for (int i = 0; i < othersRegion.size(); i++) {
+        for (int j = i + 1; j < othersRegion.size(); j++) {
+          if (othersSerNum.get(i) == 5 || othersSerNum.get(j) == 5) {
+            continue;
+          }
+          Region r1 = othersRegion.get(i);
+          Region r2 = othersRegion.get(j);
+          othersRegion.set(i, r2);
+          othersRegion.set(j, r1);
+          if (totalDistanceToCentre() < td && totalDistanceToCentre() < originaltd) {
+            improve = true;
+          } else {
+            othersRegion.set(i, r1);
+            othersRegion.set(j, r2);
+          }
+        }
+      }
+    }
+  }
+
+  // 计算每个agent到其区域中心的距离之和，和越小说明区域分配越合理
+  private int totalDistanceToCentre() {
+    int res = 0;
+    for (int i = 0; i < othersRegion.size(); i ++) {
+      res += othersRegion.get(i).getDistanceToCentre(othersPos.get(i).x, othersPos.get(i).y);
+    }
+    return res;
+  }
+
+  private boolean isExplorerRegion(Region region) {
+    return environment.getxDimension() / 2 == (region.bot - region.top) / 2 && environment.getyDimension() / 2 == (region.right - region.left) / 2;
+  }
+
+  private boolean canForget(TWObject object) {
+    if (object instanceof TWObstacle) {
+      return object.getTimeLeft(me.getEnvironment().schedule.getTime()) < me.getDistanceTo(object.getX(), object.getY());
+    } else {
+      return object.getTimeLeft(me.getEnvironment().schedule.getTime()) <= me.getDistanceTo(object.getX(), object.getY());
     }
   }
 }

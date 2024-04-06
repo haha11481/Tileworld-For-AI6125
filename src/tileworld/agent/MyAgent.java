@@ -36,9 +36,9 @@ public class MyAgent extends TWAgent {
     return fuelStation != null && (fuelStation.getDistanceTo(this) + 25 >= this.getFuelLevel() && this.getFuelLevel() < Parameters.endTime - getEnvironment().schedule.getTime());
   }
 
-  // 返回tiles是否已经拿满
-  public boolean tilesFull() {
-    return this.carriedTiles.size() == 3;
+  // 返回目前持有的tile数量
+  public int countTiles() {
+    return this.carriedTiles.size();
   }
 
   @Override
@@ -46,6 +46,10 @@ public class MyAgent extends TWAgent {
     if (thought == null) {
       System.out.println("不可能");
       return;
+    }
+
+    if (getEnvironment().schedule.getTime() == 4999) {
+      System.out.println(getName() + " score: " + getScore());
     }
 
     if (getFuelLevel() <= 0 && ((MyMemory) getMemory()).getFuelStation() == null) {
@@ -81,7 +85,6 @@ public class MyAgent extends TWAgent {
         this.planner.removeObject(hole);
       }
       case REFUEL -> {
-        System.out.println("Agent Refuel!");
         this.refuel();
       }
     }
@@ -100,7 +103,7 @@ public class MyAgent extends TWAgent {
     IntBag y = mm.getSensedY();
     // 时刻共享fuelStation的信息
     Message message = new MyMessage(entities, x, y, mm.getFuelStation(), planner.getCurrentGoal(),
-            new Int2D(this.x, this.y), planner.getCurStrategy(), getSerNum(), mm.getRemovedObj());
+            new Int2D(this.x, this.y), planner.getCurStrategy(), getSerNum(), mm.getRemovedObj(), planner.getRegion());
     this.getEnvironment().receiveMessage(message);
   }
 

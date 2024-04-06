@@ -1,5 +1,6 @@
 package tileworld.planners;
 
+import sim.util.Int2D;
 import tileworld.Parameters;
 import tileworld.agent.TWAgent;
 
@@ -46,11 +47,12 @@ public class Region {
    * 记当前时间为n，位置(i,j)最后一次被sense到的时间为t(i,j)
    * d(i,j) = n - t(i,j) 表示该位置距离最后一次被sense所经过的时间，d越大则越有可能生成tile或hole
    * 对于上下左右每个方向，记录向该方向移动后能sense到的d(i,j)之和S，向S最大的方向移动
+   * vision代表向外求几行，最终比较这些行的平均值
    *
    * @param me
    * @return  string: left, right, up, down
    */
-  public String getExploreDirection(TWAgent me, double currentTime) {
+  public String getExploreDirection(TWAgent me, double currentTime, int vision) {
     assert this.contains(me.getX(), me.getY());
     double leftTime = 0;
     double rightTime = 0;
@@ -58,25 +60,53 @@ public class Region {
     double downTime = 0;
     int x = me.getX() - top;
     int y = me.getY() - left;
+    int count = 0;
     for (int i = x - range; i <= x + range; i ++) {
-      if (validPos(i, y - range - 1)) {
-        leftTime += currentTime - scannedMatrix[i][y - range - 1];
+      for (int v = 1; v <= vision; v ++) {
+        if (validPos(i, y - range - v)) {
+          leftTime += currentTime - scannedMatrix[i][y - range - v];
+          count ++;
+        }
       }
     }
+    if (count != 0) {
+      leftTime /= count;
+      count = 0;
+    }
     for (int i = x - range; i <= x + range; i ++) {
-      if (validPos(i, y + range + 1)) {
-        rightTime += currentTime - scannedMatrix[i][y + range + 1];
+      for (int v = 1; v <= vision; v ++) {
+        if (validPos(i, y + range + v)) {
+          rightTime += currentTime - scannedMatrix[i][y + range + v];
+          count++;
+        }
       }
+    }
+    if (count != 0) {
+      rightTime /= count;
+      count = 0;
     }
     for (int i = y - range; i <= y + range; i ++) {
-      if (validPos(x - range - 1, i)) {
-        upTime += currentTime - scannedMatrix[x - range - 1][i];
+      for (int v = 1; v <= vision; v ++) {
+        if (validPos(x - range - v, i)) {
+          upTime += currentTime - scannedMatrix[x - range - v][i];
+          count++;
+        }
       }
     }
+    if (count != 0) {
+      upTime /= count;
+      count = 0;
+    }
     for (int i = y - range; i <= y + range; i ++) {
-      if (validPos(x + range + 1, i)) {
-        downTime += currentTime - scannedMatrix[x + range + 1][i];
+      for (int v = 1; v <= vision; v ++) {
+        if (validPos(x + range + v, i)) {
+          downTime += currentTime - scannedMatrix[x + range + v][i];
+          count++;
+        }
       }
+    }
+    if (count != 0) {
+      downTime /= count;
     }
 
     double max1 = Math.max(leftTime, rightTime);
@@ -209,5 +239,70 @@ public class Region {
       }
     }
     return exploited;
+  }
+
+  // 获取该点到区域的距离
+  public int getDistance(int x, int y) {
+    if (this.contains(x, y)) {
+      return 0;
+    }
+
+    int d = 0;
+    if (x < top) {
+      d += top - x;
+    } else if (x > bot) {
+      d += x - bot;
+    }
+
+    if (y < left) {
+      d += left - y;
+    } else if (y > right) {
+      d += y - right;
+    }
+
+    return d;
+  }
+
+  // 返回最久没有被sense过的区域的中心点
+  // 屌用没有目前
+  public Int2D coldestArea(double curTime) {
+    int maxD = 0;
+    // default direction
+    Int2D res = new Int2D(scannedMatrix.length / 2, scannedMatrix[0].length / 2);
+    for (int i = 0; i < scannedMatrix.length; i ++) {
+      for (int j = 0; j < scannedMatrix[0].length; j++) {
+        int d = 0;
+        for (int x = i - range; x <= i + range; x ++) {
+          for (int y = j - range; y <= j + range; y ++) {
+            if (validPos(x, y)) {
+              d += curTime - scannedMatrix[x][y];
+            }
+          }
+        }
+        if (d > maxD) {
+          maxD = d;
+          res = new Int2D(i, j);
+        }
+      }
+    }
+    return new Int2D(res.x + top, res.y + left);
+  }
+
+  // 返回点到区域中心的距离
+  public int getDistanceToCentre(int x, int y) {
+    Int2D centre = getCenter();
+    return Math.abs(x - centre.x) + Math.abs(y - centre.y);
+  }
+
+  public Int2D getCenter() {
+    return new Int2D(top + scannedMatrix.length / 2, left + scannedMatrix[0].length / 2);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o instanceof Region region) {
+      return this.left == region.left && this.right == region.right && this.top == region.top && this.bot == region.bot;
+    }
+    return false;
   }
 }
