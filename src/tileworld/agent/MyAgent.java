@@ -33,7 +33,8 @@ public class MyAgent extends TWAgent {
   // TODO decide when shall we navigate to fuelStation, need better criteria
   public boolean needRefuel() {
     TWFuelStation fuelStation = ((MyMemory) getMemory()).getFuelStation();
-    return fuelStation != null && (fuelStation.getDistanceTo(this) + 25 >= this.getFuelLevel() && this.getFuelLevel() < Parameters.endTime - getEnvironment().schedule.getTime());
+    return fuelStation != null && this.getFuelLevel() < Parameters.endTime - getEnvironment().schedule.getTime() &&
+            (fuelStation.getDistanceTo(this) + 25 >= this.getFuelLevel() || (this.getDistanceTo(fuelStation) <= 8 && this.getFuelLevel() < 250));
   }
 
   // 返回目前持有的tile数量
