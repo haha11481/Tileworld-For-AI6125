@@ -3,6 +3,7 @@ package tileworld.planners;
 import sim.util.Bag;
 import sim.util.Int2D;
 import sim.util.IntBag;
+import tileworld.Parameters;
 import tileworld.agent.*;
 import tileworld.environment.*;
 
@@ -37,25 +38,19 @@ public class MyPlanner implements TWPlanner{
   private final ArrayList<Integer> othersSerNum = new ArrayList<>();
   // 其他agent的区域，是否可以两两交换达到最高效率
   private final ArrayList<Region> othersRegion = new ArrayList<>();
-  // 是否开启区域切换，开启后在每个time step都采用最优的区域分配策略
-  // 有用，但没什么大用
-  private final boolean enableRegionSwapping = true;
-
-  // 当前目标的最大距离限制，超过该距离就不设为目标了
   private int distanceThreshold;
   private boolean explorer = false;
-  // 决定explore时的方向，越大表示越看重未来的探索方向，有点用
   private int sight;
   private final Region[] regions = new Region[5];
 
   public MyPlanner(MyAgent me, TWEnvironment environment) {
     this.me = me;
     this.environment = environment;
-    this.pathGenerator = new AstarPathGenerator(environment, me, 10000000);
+    this.pathGenerator = new AstarPathGenerator(environment, me, Integer.MAX_VALUE);
     this.globalVision = new TWObject[environment.getxDimension()][environment.getyDimension()];
     //暂时用名字里的数字表示序号
     int serNum = me.getSerNum();
-    buildRegions(0);
+    buildRegions(PlannerParams.region_overlap);
 
     // 决定agent的类型
     switch (serNum) {
@@ -73,20 +68,20 @@ public class MyPlanner implements TWPlanner{
   // 普通agent的参数配置
   private void normalSetup() {
     this.explorer = false;
-    this.distanceThreshold = 10;
-    this.sight = 3;
+    this.distanceThreshold = PlannerParams.normal_distanceThreshold;
+    this.sight = PlannerParams.normal_sight;
   }
 
   // explorer的参数配置
   private void explorerSetup() {
     this.explorer = true;
-    this.distanceThreshold = 25;
-    this.sight = 5;
+    this.distanceThreshold = PlannerParams.explorer_distanceThreshold;
+    this.sight = PlannerParams.explorer_sight;
   }
 
   // 田字格分区 + 一个explorer，overlap代表每个分区向外延申多少格
   private void buildRegions(int overlap) {
-    int border = 5;
+    int border = PlannerParams.explorer_border;
     int length = environment.getxDimension() / 2;
     int width = environment.getyDimension() / 2;
     regions[0] = new Region(0, length - 1 + overlap, 0, width - 1 + overlap);
@@ -195,7 +190,7 @@ public class MyPlanner implements TWPlanner{
     refresh();
     TWFuelStation fuelStation = ((MyMemory) me.getMemory()).getFuelStation();
 
-    if (me.needRefuel() && fuelStation != null) {
+    if (needRefuel() && fuelStation != null) {
       // 需要加油且找到了加油站就去加油
       curStrategy = Strategy.REFUEL;
       setCurrentGoal(fuelStation);
@@ -242,6 +237,15 @@ public class MyPlanner implements TWPlanner{
       }
     }
     return true;
+  }
+
+  // TODO decide when shall we navigate to fuelStation, need better criteria
+  public boolean needRefuel() {
+    TWFuelStation fuelStation = ((MyMemory) me.getMemory()).getFuelStation();
+    return fuelStation != null && me.getFuelLevel() < Parameters.endTime - me.getEnvironment().schedule.getTime() &&
+            (fuelStation.getDistanceTo(me) + PlannerParams.force_refuel_threshold >= me.getFuelLevel() ||
+                    (me.getDistanceTo(fuelStation) <= PlannerParams.refuel_distanceThreshold &&
+                    me.getFuelLevel() < PlannerParams.refuel_fuelLevelThreshold));
   }
 
   @Override
@@ -370,7 +374,7 @@ public class MyPlanner implements TWPlanner{
         ((MyMemory) me.getMemory()).setFuelStation(mm.getFuelStation());
       }
     }
-    if (enableRegionSwapping) {
+    if (PlannerParams.enable_region_swapping) {
       swapRegion();
     }
     updateVision(allSensedObjects, allX, allY);
@@ -418,6 +422,7 @@ public class MyPlanner implements TWPlanner{
     for (TWEntity entity : othersRemove) {
       if (entity != null) {
         globalVision[entity.getX()][entity.getY()] = null;
+        me.getMemory().removeObject(entity);
       }
     }
     // renew the closest tile and hole
