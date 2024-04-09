@@ -42,6 +42,7 @@ public class MyPlanner implements TWPlanner{
   private boolean explorer = false;
   private int sight;
   private final Region[] regions = new Region[5];
+  private boolean hasRedistributed = false;
 
   public MyPlanner(MyAgent me, TWEnvironment environment) {
     this.me = me;
@@ -70,6 +71,7 @@ public class MyPlanner implements TWPlanner{
     this.explorer = false;
     this.distanceThreshold = PlannerParams.normal_distanceThreshold;
     this.sight = PlannerParams.normal_sight;
+    //this.sight = me.getSerNum() + 2;
   }
 
   // explorer的参数配置
@@ -112,6 +114,14 @@ public class MyPlanner implements TWPlanner{
     }
     /*regions[0].bot += overlap;
     regions[4].top -= overlap;*/
+  }
+
+  private void buildRegions0(int overlap) {
+    int length = environment.getxDimension();
+    int width = environment.getyDimension();
+    for (int i = 0; i < 5;  i ++) {
+      regions[i] = new Region(0, length - 1, 0, width - 1);
+    }
   }
 
   @Override
@@ -189,12 +199,22 @@ public class MyPlanner implements TWPlanner{
   public boolean hasPlan() {
     refresh();
     TWFuelStation fuelStation = ((MyMemory) me.getMemory()).getFuelStation();
+    if (fuelStation != null) {
+      // 找完加油站之后是否需要region重新分配
+      if (!hasRedistributed) {
+        buildRegions(PlannerParams.region_overlap + (int) (environment.getxDimension() * 0.25));
+        Region r = regions[me.getSerNum() - 1];
+        Region.copyScannedMatrix(region, r);
+        hasRedistributed = true;
+        this.region = r;
+      }
+    }
 
     if (needRefuel() && fuelStation != null) {
       // 需要加油且找到了加油站就去加油
       curStrategy = Strategy.REFUEL;
       setCurrentGoal(fuelStation);
-    } else if (fuelStation == null && !region.exploited() && !explorer) {
+    } else if (fuelStation == null && !region.exploited() && me.getSerNum() != 5) {
       // 刚开始，如果没找到加油站且自己的区域还没探索完，就先找加油站
       curStrategy = Strategy.FIND_FUEL;
     } else {

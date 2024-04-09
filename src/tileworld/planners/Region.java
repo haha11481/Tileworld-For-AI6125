@@ -174,13 +174,14 @@ public class Region {
   }
 
   private boolean hasUndiscoveredPos(int x, int y, String direction) {
-    boolean res = false;
     switch (direction) {
       case "left" -> {
         for (int i = 0; i < scannedMatrix.length; i++) {
           for (int j = 0; j < y - range; j++) {
             if (j < scannedMatrix[0].length) {
-              res = scannedMatrix[i][j] == -1;
+              if (scannedMatrix[i][j] == -1) {
+                return true;
+              }
             }
           }
         }
@@ -188,7 +189,9 @@ public class Region {
       case "right" -> {
         for (int i = 0; i < scannedMatrix.length; i++) {
           for (int j = y + range + 1; j < scannedMatrix[0].length; j++) {
-              res = scannedMatrix[i][j] == -1;
+            if (scannedMatrix[i][j] == -1) {
+              return true;
+            }
           }
         }
       }
@@ -196,14 +199,18 @@ public class Region {
         for (int i = 0; i < x - range; i++) {
           for (int j = y - range; j <= y - range; j++) {
             if (j >= 0 && j < scannedMatrix[0].length) {
-              res = scannedMatrix[i][j] == -1;
+              if (scannedMatrix[i][j] == -1) {
+                return true;
+              }
             }
           }
           // 已经到达了右边界
           if (y + range >= scannedMatrix[0].length - 1) {
             for (int j = y - range + 1; j <= y + range; j++) {
               if (j >= 0 && j < scannedMatrix[0].length) {
-                res = scannedMatrix[i][j] == -1;
+                if (scannedMatrix[i][j] == -1) {
+                  return true;
+                }
               }
             }
           }
@@ -213,32 +220,37 @@ public class Region {
         for (int i = x + range + 1; i < scannedMatrix.length; i++) {
           for (int j = y - range; j <= y - range; j++) {
             if (j >= 0 && j < scannedMatrix[0].length) {
-              res = scannedMatrix[i][j] == -1;
+              if (scannedMatrix[i][j] == -1) {
+                return true;
+              }
             }
           }
           // 已经到达了右边界
           if (y + range >= scannedMatrix[0].length - 1) {
             for (int j = y - range + 1; j <= y + range; j++) {
               if (j >= 0 && j < scannedMatrix[0].length) {
-                res = scannedMatrix[i][j] == -1;
+                if (scannedMatrix[i][j] == -1) {
+                  return true;
+                }
               }
             }
           }
         }
       }
     }
-    return res;
+    return false;
   }
 
   // 很低效，判断区域的每一个位置都是否被扫过了
   public boolean exploited() {
-    boolean exploited = true;
-    for (int i = 0; i < scannedMatrix.length; i ++) {
-      for (int j = 0; j < scannedMatrix[0].length; j ++) {
-        exploited = scannedMatrix[i][j] > -1;
+    for (double[] row : scannedMatrix) {
+      for (double v : row) {
+        if (v <= -1) {
+          return false;
+        }
       }
     }
-    return exploited;
+    return true;
   }
 
   // 获取该点到区域的距离
@@ -304,5 +316,21 @@ public class Region {
       return this.left == region.left && this.right == region.right && this.top == region.top && this.bot == region.bot;
     }
     return false;
+  }
+
+  // copy the scannedMatrix from r1 to r2, use it if we want to change the region distribution during the run
+  public static void copyScannedMatrix(Region r1, Region r2) {
+    for (int i = 0; i < r1.scannedMatrix.length; i ++) {
+      for (int j = 0; j < r1.scannedMatrix[0].length; j ++) {
+        double ts = r1.scannedMatrix[i][j];
+        int x = i + r1.top;
+        int y = i + r1.left;
+        if (r2.contains(x, y)) {
+          x = x - r2.top;
+          y = y - r1.left;
+          r2.scannedMatrix[x][y] = ts;
+        }
+      }
+    }
   }
 }
