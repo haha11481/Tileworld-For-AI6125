@@ -286,7 +286,7 @@ public class Region {
         int y = i + r1.left;
         if (r2.contains(x, y)) {
           x = x - r2.top;
-          y = y - r1.left;
+          y = y - r2.left;
           r2.scannedMatrix[x][y] = ts;
         }
       }
