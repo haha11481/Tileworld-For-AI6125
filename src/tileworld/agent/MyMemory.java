@@ -9,7 +9,7 @@ import tileworld.environment.TWObject;
 
 public class MyMemory extends TWAgentWorkingMemory {
 
-  // 记录自己感知到的Objects,用于在每个time step向其他agent发送消息
+  // send sensed objects in each time step to other agents
   private final Bag sensedObjects = new Bag();
   private final IntBag sensedX = new IntBag();
   private final IntBag sensedY = new IntBag();
@@ -66,7 +66,7 @@ public class MyMemory extends TWAgentWorkingMemory {
     return sensedY;
   }
 
-  // 删除已经死亡的tile/hole/obstacle
+  // remove tile/hole/obstacle that run out of time
   @Override
   public void decayMemory() {
     for (int x = 0; x < getMemoryGrid().getHeight(); x++) {

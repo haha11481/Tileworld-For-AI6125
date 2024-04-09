@@ -15,7 +15,6 @@ public class MyAgent extends TWAgent {
   public MyAgent(String name, int xpos, int ypos, TWEnvironment env, double fuelLevel) {
     super(xpos, ypos, env, fuelLevel);
     this.name = name;
-    // TODO maxSearchDistance设置成物体的存活时间，是否合理？
     this.planner = new MyPlanner(this, env);
     this.memory = new MyMemory(this, env.schedule, env.getxDimension(), env.getyDimension());
   }
@@ -25,7 +24,7 @@ public class MyAgent extends TWAgent {
     if (planner.hasPlan()) {
       return planner.generatePlan();
     } else {
-      // 别别别
+      // currently, hasPlan() will always return true in our implementation
       return planner.voidPlan();
     }
   }
@@ -37,11 +36,6 @@ public class MyAgent extends TWAgent {
 
   @Override
   protected void act(TWThought thought) {
-    if (thought == null) {
-      System.out.println("不可能");
-      return;
-    }
-
     if (getEnvironment().schedule.getTime() == 4999) {
       System.out.println(getName() + " score: " + getScore());
     }
@@ -65,9 +59,6 @@ public class MyAgent extends TWAgent {
       }
       case PICKUP -> {
         TWTile tile = (TWTile) getMemory().getMemoryGrid().get(x, y);
-        if (tile == null) {
-          System.out.println("impossible");
-        }
         this.pickUpTile(tile);
         this.memory.removeObject(tile);
         this.planner.removeObject(tile);
@@ -95,13 +86,12 @@ public class MyAgent extends TWAgent {
     Bag entities = mm.getSensedObjects();
     IntBag x = mm.getSensedX();
     IntBag y = mm.getSensedY();
-    // 时刻共享fuelStation的信息
     Message message = new MyMessage(entities, x, y, mm.getFuelStation(), planner.getCurrentGoal(),
             new Int2D(this.x, this.y), planner.getCurStrategy(), getSerNum(), mm.getRemovedObj(), planner.getRegion());
     this.getEnvironment().receiveMessage(message);
   }
 
-  // TODO 分配agent的编号，来点更合理的方法
+  // TODO better method to assign unique number to each agent?
   public int getSerNum() {
     return Integer.parseInt(String.valueOf(getName().charAt(getName().length() - 1)));
   }

@@ -6,7 +6,6 @@ import tileworld.agent.TWAgent;
 
 public class Region {
 
-  // 左上，右上，左下，右下
   int top, bot, left, right;
   double[][] scannedMatrix;
   int range = Parameters.defaultSensorRange;
@@ -23,12 +22,12 @@ public class Region {
     }
   }
 
-  // pos是否在region中
+  // return whether pos(x,y) is inside this region
   public boolean contains(int x, int y) {
     return top <= x && left <= y && bot >= x && right >= y;
   }
 
-  // 更新哪些位置被agent sense过了
+  // update the last sensed time of pos(x,y)
   public void update(int x, int y, double currentTime) {
     x = x - top;
     y = y - left;
@@ -42,14 +41,15 @@ public class Region {
   }
 
   /**
-   * 获取agent下一步需要explore的方向，具体策略为：
+   * return the direction for agent to explore this region：
    *
-   * 记当前时间为n，位置(i,j)最后一次被sense到的时间为t(i,j)
-   * d(i,j) = n - t(i,j) 表示该位置距离最后一次被sense所经过的时间，d越大则越有可能生成tile或hole
-   * 对于上下左右每个方向，记录向该方向移动后能sense到的d(i,j)之和S，向S最大的方向移动
-   * vision代表向外求几行，最终比较这些行的平均值
+   * let current time step = n，last sensed time of pos(i,j) = t(i,j)
+   * d(i,j) = n - t(i,j) represents the period from last sensed time of pos(i,j) till now，larger d indicates higher
+   * possibility of spawning tiles or holes.
+   * for each direction，calculate the sum of d(i,j)s if moving toward that direction.
+   * return the direction with the largest sum.
    *
-   * @param me
+   * @param vision the total number of steps we want to calculate, we take the average of these steps as final sum.
    * @return  string: left, right, up, down
    */
   public String getExploreDirection(TWAgent me, double currentTime, int vision) {
@@ -125,7 +125,7 @@ public class Region {
     }
   }
 
-  // 向离边界最远的反方向走。。
+  // move towards the middle of the region
   private String againstBorder(int x, int y) {
     int l = y - left;
     int r = right - y;
@@ -145,14 +145,18 @@ public class Region {
     }
   }
 
+  // return whether pos(x,y) is a valid index in the region
   private boolean validPos(int x, int y) {
     return x >= 0 && x < scannedMatrix.length && y >= 0 && y < scannedMatrix[0].length;
   }
 
   /**
-   * 获取agent scan的方向，具体策略为：
+   * return the next direction for the agent to scan this region：
    *
-   *左->下->右->上，螺旋扫描
+   * 1.move left until all pos on the left of the agent have been scanned
+   * 2.move up/down until all pos in the upper or lower area of the agent have been scanned
+   * 3.move right while all pos on the left of the agent have been scanned or agent has reached right border
+   * 4.repeat previous step until all pos have been scanned
    *
    * @param agent
    * @return  string: left, right, up, down
@@ -173,6 +177,7 @@ public class Region {
     }
   }
 
+  // return if there is any pos that has not been scanned by the agent in the provided direction
   private boolean hasUndiscoveredPos(int x, int y, String direction) {
     switch (direction) {
       case "left" -> {
@@ -241,7 +246,7 @@ public class Region {
     return false;
   }
 
-  // 很低效，判断区域的每一个位置都是否被扫过了
+  // not efficient method, return whether all pos of the region have been sensed by at least 1 agent
   public boolean exploited() {
     for (double[] row : scannedMatrix) {
       for (double v : row) {
@@ -253,59 +258,13 @@ public class Region {
     return true;
   }
 
-  // 获取该点到区域的距离
-  public int getDistance(int x, int y) {
-    if (this.contains(x, y)) {
-      return 0;
-    }
-
-    int d = 0;
-    if (x < top) {
-      d += top - x;
-    } else if (x > bot) {
-      d += x - bot;
-    }
-
-    if (y < left) {
-      d += left - y;
-    } else if (y > right) {
-      d += y - right;
-    }
-
-    return d;
-  }
-
-  // 返回最久没有被sense过的区域的中心点
-  // 屌用没有目前
-  public Int2D coldestArea(double curTime) {
-    int maxD = 0;
-    // default direction
-    Int2D res = new Int2D(scannedMatrix.length / 2, scannedMatrix[0].length / 2);
-    for (int i = 0; i < scannedMatrix.length; i ++) {
-      for (int j = 0; j < scannedMatrix[0].length; j++) {
-        int d = 0;
-        for (int x = i - range; x <= i + range; x ++) {
-          for (int y = j - range; y <= j + range; y ++) {
-            if (validPos(x, y)) {
-              d += curTime - scannedMatrix[x][y];
-            }
-          }
-        }
-        if (d > maxD) {
-          maxD = d;
-          res = new Int2D(i, j);
-        }
-      }
-    }
-    return new Int2D(res.x + top, res.y + left);
-  }
-
-  // 返回点到区域中心的距离
+  // return the distance between region centre and pos(x,y)
   public int getDistanceToCentre(int x, int y) {
     Int2D centre = getCenter();
     return Math.abs(x - centre.x) + Math.abs(y - centre.y);
   }
 
+  // return the center of the region
   public Int2D getCenter() {
     return new Int2D(top + scannedMatrix.length / 2, left + scannedMatrix[0].length / 2);
   }
