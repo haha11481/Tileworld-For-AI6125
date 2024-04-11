@@ -19,6 +19,9 @@ Core logic. Decide the next movement of an agent inside its region.
 <br>
 <b>Strategy.class</b>:
 An enum class of five possible states of an agent.  
+<br>
+<b>PlannerParams.class</b>:
+Contain all parameters that could be fine-tuned based on the configuration of the environment.
 </p>
 
 <h2>Evaluations</h2>
@@ -28,4 +31,4 @@ Avg total score in config1 is around 705.
 <br>
 Avg total score in config2 is around 945.
 <br>
-Avg total score in config3 with x,y=100 & mean=1 & dev=0.5 & lifeTime=50 is arount 535.
+Avg total score in config3 with x,y=100 & mean=1 & dev=0.5 & lifeTime=50 is around 535.
