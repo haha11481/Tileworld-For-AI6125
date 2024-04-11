@@ -25,18 +25,18 @@ public class Parameters {
     public static final int defaultSensorRange = 3;
 
     //Environment Parameters
-    public static final int xDimension = 50; //size in cells
-    public static final int yDimension = 50;
+    public static final int xDimension = 100; //size in cells
+    public static final int yDimension = 100;
 
     //Object Parameters
     // mean, dev: control the number of objects to be created in every time step (i.e. average object creation rate)
-    public static final double tileMean = 0.2;
-    public static final double holeMean = 0.2;
-    public static final double obstacleMean = 0.2;
-    public static final double tileDev = 0.05f;
-    public static final double holeDev = 0.05f;
-    public static final double obstacleDev = 0.05f;
+    public static final double tileMean = 1;
+    public static final double holeMean = 1;
+    public static final double obstacleMean = 1;
+    public static final double tileDev = 0.5f;
+    public static final double holeDev = 0.5f;
+    public static final double obstacleDev = 0.5f;
     // the life time of each object
-    public static final int lifeTime = 100;
+    public static final int lifeTime = 50;
 
 }

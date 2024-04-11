@@ -12,7 +12,7 @@ public class PlannerParams {
   public static final int region_overlap = 0;
 
   // distance threshold for whether we want early refuel, used together with fuel level threshold
-  public static final int refuel_distanceThreshold = 10;
+  public static final int refuel_distanceThreshold = 12;
   // fuel level threshold for whether we want early refuel, used together with distance threshold
   public static final int refuel_fuelLevelThreshold = 250;
 
